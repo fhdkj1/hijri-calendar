@@ -28,7 +28,7 @@ interface CalendarHeaderProps {
 export const CalendarHeader = ({
   hijriYear,
   hijriMonth,
-  selectedDay,
+  selectedDay: _selectedDay,
   onPrevMonth,
   onNextMonth,
   onJumpToDate,
@@ -46,19 +46,8 @@ export const CalendarHeader = ({
 
   const monthName = HIJRI_MONTHS_AR[hijriMonth - 1];
 
-  // Exact format from the user's screenshot: "ذو الحجة ١٩-١٢-١٤٣٥ هـ"
-  const formattedHeader = `${monthName} ${num(selectedDay)}-${num(hijriMonth)}-${num(hijriYear)} هـ`;
-
-  // Dynamic responsive font sizing so the title is guaranteed to ALWAYS fit on one single line
-  const getTitleFontSizeClass = () => {
-    if (formattedHeader.length > 23) {
-      return 'text-[13px] min-[360px]:text-[14px] sm:text-base';
-    }
-    if (formattedHeader.length > 18) {
-      return 'text-[14px] min-[360px]:text-[15px] sm:text-lg';
-    }
-    return 'text-[15px] min-[360px]:text-base sm:text-xl';
-  };
+  // Hijri Month label: only month and year (e.g. "ذو الحجة ١٤٣٥ هـ")
+  const formattedHeader = `${monthName} ${num(hijriYear)} هـ`;
 
   const handleApplyJump = () => {
     onJumpToDate(tempYear, tempMonth, 1);
@@ -90,7 +79,7 @@ export const CalendarHeader = ({
         >
           <div className="flex items-center justify-center gap-1 max-w-full">
             <span
-              className={`${getTitleFontSizeClass()} font-bold tracking-tight text-[#841c1c] group-hover:text-[#9e1c1c] transition-colors leading-tight whitespace-nowrap`}
+              className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-[#841c1c] group-hover:text-[#9e1c1c] transition-colors leading-tight whitespace-nowrap"
               style={{
                 fontFamily:
                   '"Cairo", "Traditional Arabic", -apple-system, sans-serif',
