@@ -13,6 +13,7 @@ interface CalendarGridProps {
   useArabicDigits: boolean;
   notesDayMap: Record<number, { count: number; icon?: string; title?: string }>;
   showIslamicEvents?: boolean;
+  todayDay?: number | null;
 }
 
 export const CalendarGrid = ({
@@ -23,6 +24,7 @@ export const CalendarGrid = ({
   useArabicDigits,
   notesDayMap,
   showIslamicEvents = true,
+  todayDay,
 }: CalendarGridProps) => {
   // Find weekday index of selected day
   const selectedDayObj = days.find((d) => d.day === selectedDay);
@@ -87,6 +89,7 @@ export const CalendarGrid = ({
         {/* Hijri month days */}
         {days.map((dayInfo) => {
           const isSelected = dayInfo.day === selectedDay;
+          const isToday = todayDay !== null && todayDay !== undefined && dayInfo.day === todayDay;
           const gInfo = firstDayOfGMonthMap.get(dayInfo.day);
           const noteInfo = notesDayMap[dayInfo.day];
           const isFriday = dayInfo.weekdayIndex === 5;
@@ -109,7 +112,9 @@ export const CalendarGrid = ({
               onClick={() => onSelectDay(dayInfo.day)}
               className={`relative min-h-[48px] sm:min-h-[52px] p-1 sm:p-1.5 border-b border-r border-neutral-200/60 flex flex-col justify-between cursor-pointer transition-all duration-150 ${
                 isSelected
-                  ? 'bg-gradient-to-b from-[#841c1c]/10 to-amber-50/40 shadow-[inset_0_0_0_2px_#841c1c] rounded-xl z-10 shadow-xs'
+                  ? 'bg-[#dce868]/30 shadow-[inset_0_0_0_2px_#841c1c] rounded-xl z-10 shadow-xs'
+                  : isToday
+                  ? 'bg-amber-50/50 hover:bg-amber-50/80'
                   : isFriday
                   ? 'bg-amber-50/20 hover:bg-neutral-50 active:scale-95'
                   : 'bg-white hover:bg-neutral-50 active:scale-95'
@@ -117,10 +122,23 @@ export const CalendarGrid = ({
             >
               {/* Top Row: Hijri Day Number + First Event Icon */}
               <div className="flex items-start justify-between relative z-10">
-                {/* Hijri day number: Elegant filled circle badge when selected */}
-                {isSelected ? (
+                {/* Hijri day number:
+                    - Today ALWAYS has the permanent crimson filled badge
+                    - Clicked/selected day has highlighted style without stealing today's badge */}
+                {isToday ? (
                   <span
-                    className="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-[#841c1c] text-white flex items-center justify-center font-bold text-sm sm:text-base shadow-xs leading-none transition-transform animate-in zoom-in-75 duration-150 shrink-0"
+                    className="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-[#841c1c] text-white flex items-center justify-center font-bold text-sm sm:text-base shadow-xs leading-none shrink-0 ring-2 ring-[#841c1c]/20"
+                    style={{
+                      fontFamily:
+                        '"Cairo", "Traditional Arabic", -apple-system, sans-serif',
+                    }}
+                    title="تاريخ اليوم"
+                  >
+                    {num(dayInfo.day)}
+                  </span>
+                ) : isSelected ? (
+                  <span
+                    className="w-7 h-7 sm:w-7.5 sm:h-7.5 flex items-center justify-center text-base sm:text-lg font-black leading-none text-[#841c1c] shrink-0"
                     style={{
                       fontFamily:
                         '"Cairo", "Traditional Arabic", -apple-system, sans-serif',

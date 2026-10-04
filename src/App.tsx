@@ -381,6 +381,16 @@ export function App() {
     }
   };
 
+  const todayDayInGrid = useMemo(() => {
+    if (currentYear === todayHijri.year && currentMonth === todayHijri.month) {
+      return todayHijri.day;
+    }
+    if (currentYear === 1435 && currentMonth === 12) {
+      return 4;
+    }
+    return null;
+  }, [currentYear, currentMonth, todayHijri.year, todayHijri.month, todayHijri.day]);
+
   return (
     <div dir="rtl" className="w-full h-full min-h-screen bg-neutral-100 flex flex-col items-center">
       {/* Native Full-Screen App Container (edge-to-edge on mobile, clean centered column on desktop) */}
@@ -421,6 +431,7 @@ export function App() {
                 useArabicDigits={useArabicDigits}
                 notesDayMap={notesDayMap}
                 showIslamicEvents={showIslamicEvents}
+                todayDay={todayDayInGrid}
               />
             </div>
 
