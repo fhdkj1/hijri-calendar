@@ -226,10 +226,17 @@ export const CalendarHeader = ({
                 </div>
               ) : (
                 <div className="space-y-1.5">
-                  <div className="text-[11px] font-bold text-neutral-400 px-1 pb-1">
-                    {filteredSearchResults.length} نتيجة مطابقة:
+                  <div className="text-[11px] font-bold text-neutral-500 px-1 pb-1 flex items-center justify-between">
+                    <span>
+                      {filteredSearchResults.length > 50
+                        ? `تم العثور على ${num(filteredSearchResults.length)} نتيجة (عرض أول 50):`
+                        : `${num(filteredSearchResults.length)} نتيجة مطابقة:`}
+                    </span>
+                    <span className="text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full font-mono font-bold">
+                      {num(filteredSearchResults.length)} إجمالي
+                    </span>
                   </div>
-                  {filteredSearchResults.map((item) => (
+                  {filteredSearchResults.slice(0, 50).map((item) => (
                     <div
                       key={item.id}
                       onClick={() => {

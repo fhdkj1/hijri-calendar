@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Plus, Trash2, Sparkles } from 'lucide-react';
 import {
   type HijriDateInfo,
@@ -33,14 +33,24 @@ export const RuledNotebookSection = ({
   const [newNoteDetails, setNewNoteDetails] = useState('');
   const [newNoteIcon, setNewNoteIcon] = useState('pin');
 
-  const selectedDayNotes = selectedDayInfo
-    ? userNotes.filter(
-        (n) =>
-          n.hijriYear === selectedDayInfo.year &&
-          n.hijriMonth === selectedDayInfo.month &&
-          n.hijriDay === selectedDayInfo.day
-      )
-    : [];
+  const selectedDayNotes = useMemo(() => {
+    if (!selectedDayInfo) return [];
+    return userNotes.filter(
+      (n) =>
+        n.hijriYear === selectedDayInfo.year &&
+        n.hijriMonth === selectedDayInfo.month &&
+        n.hijriDay === selectedDayInfo.day
+    );
+  }, [userNotes, selectedDayInfo?.year, selectedDayInfo?.month, selectedDayInfo?.day]);
+
+  const monthUserNotes = useMemo(() => {
+    if (!selectedDayInfo) return [];
+    return userNotes.filter(
+      (n) =>
+        n.hijriYear === selectedDayInfo.year &&
+        n.hijriMonth === selectedDayInfo.month
+    );
+  }, [userNotes, selectedDayInfo?.year, selectedDayInfo?.month]);
 
   const handleCreateNote = (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,14 +149,7 @@ export const RuledNotebookSection = ({
                   ))}
 
                 {/* User Notes for this Month with Selected Icons */}
-                {userNotes
-                  .filter(
-                    (n) =>
-                      selectedDayInfo &&
-                      n.hijriYear === selectedDayInfo.year &&
-                      n.hijriMonth === selectedDayInfo.month
-                  )
-                  .map((note) => (
+                {monthUserNotes.map((note) => (
                     <div
                       key={note.id}
                       className="h-[42px] flex items-center justify-between text-neutral-800 text-sm px-1 hover:bg-amber-50/40 rounded-lg transition-colors group"

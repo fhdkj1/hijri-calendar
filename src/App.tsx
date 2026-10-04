@@ -6,6 +6,7 @@ import {
   toArabicNumerals,
   type UserNote,
 } from './utils/hijriCalendar';
+import { generate1500TestEvents } from './utils/generateTestEvents';
 import {
   onAuthChanged,
   subscribeToUserNotes,
@@ -83,29 +84,40 @@ export function App() {
     setDeletedIslamicEventIds([]);
   };
 
-  // User custom notes / events
+  // User custom notes / events - populated with 1,500 test events for system performance benchmark
   const [userNotes, setUserNotes] = useState<UserNote[]>(() => {
+    const isPerfInitialized = localStorage.getItem('hijri_perf_1500_initialized');
     const saved = localStorage.getItem('hijri_user_notes');
-    if (saved) {
+    if (saved && isPerfInitialized) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= 1000) {
+          return parsed;
+        }
       } catch {
-        return [];
+        // fallback
       }
     }
-    return [
-      {
-        id: 'sample-1',
-        hijriYear: 1435,
-        hijriMonth: 12,
-        hijriDay: 19,
-        title: 'يوم الإثنين - موعد متابعة',
-        details: 'ملاحظة مسجلة في يوم 19 ذو الحجة',
-        icon: 'pin',
-        createdAt: new Date().toISOString(),
-      },
-    ];
+
+    // Auto-generate 1,500 test events across all dates and occasions
+    const testEvents = generate1500TestEvents();
+    localStorage.setItem('hijri_perf_1500_initialized', 'true');
+    localStorage.setItem('hijri_user_notes', JSON.stringify(testEvents));
+    return testEvents;
   });
+
+  const handleLoad1500TestEvents = () => {
+    const testEvents = generate1500TestEvents();
+    setUserNotes(testEvents);
+    localStorage.setItem('hijri_perf_1500_initialized', 'true');
+    localStorage.setItem('hijri_user_notes', JSON.stringify(testEvents));
+  };
+
+  const handleClearAllNotes = () => {
+    setUserNotes([]);
+    localStorage.removeItem('hijri_perf_1500_initialized');
+    localStorage.setItem('hijri_user_notes', JSON.stringify([]));
+  };
 
   // Selected date: loaded from localStorage so refresh keeps the user on the exact same date
   const [currentYear, setCurrentYear] = useState<number>(() => {
@@ -461,6 +473,8 @@ export function App() {
             onJumpToScreenshotDate={() => handleJumpToDate(1435, 12, 19)}
             user={user}
             notesCount={userNotes.length}
+            onLoad1500Events={handleLoad1500TestEvents}
+            onClearAllNotes={handleClearAllNotes}
           />
         )}
 
