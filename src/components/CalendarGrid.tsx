@@ -4,7 +4,6 @@ import {
   toArabicNumerals,
 } from '../utils/hijriCalendar';
 import { EventIconRenderer } from './EventIcons';
-import { AnimatedRedCircle } from './CalendarIcons';
 
 interface CalendarGridProps {
   days: HijriDateInfo[];
@@ -108,40 +107,45 @@ export const CalendarGrid = ({
             <div
               key={dayInfo.day}
               onClick={() => onSelectDay(dayInfo.day)}
-              className={`relative min-h-[48px] sm:min-h-[52px] p-1 sm:p-1.5 border-b border-r border-neutral-200/60 flex flex-col justify-between cursor-pointer transition-all duration-150 active:scale-95 ${
+              className={`relative min-h-[48px] sm:min-h-[52px] p-1 sm:p-1.5 border-b border-r border-neutral-200/60 flex flex-col justify-between cursor-pointer transition-all duration-150 ${
                 isSelected
-                  ? 'bg-amber-50/40 text-neutral-900 font-bold'
+                  ? 'bg-gradient-to-b from-[#841c1c]/10 to-amber-50/40 shadow-[inset_0_0_0_2px_#841c1c] rounded-xl z-10 shadow-xs'
                   : isFriday
-                  ? 'bg-amber-50/20 hover:bg-neutral-50'
-                  : 'bg-white hover:bg-neutral-50'
+                  ? 'bg-amber-50/20 hover:bg-neutral-50 active:scale-95'
+                  : 'bg-white hover:bg-neutral-50 active:scale-95'
               }`}
             >
-              {/* Animated Red Marker Circle when selected */}
-              {isSelected && <AnimatedRedCircle key={`red-circle-${dayInfo.day}`} />}
-
               {/* Top Row: Hijri Day Number + First Event Icon */}
               <div className="flex items-start justify-between relative z-10">
-                {/* Hijri day number in rich maroon font */}
-                <span
-                  className={`text-base sm:text-lg font-bold leading-none ${
-                    isSelected
-                      ? 'text-[#621113]'
-                      : isFriday
-                      ? 'text-[#841c1c]'
-                      : 'text-[#8c1d1f]'
-                  }`}
-                  style={{
-                    fontFamily:
-                      '"Cairo", "Traditional Arabic", -apple-system, sans-serif',
-                  }}
-                >
-                  {num(dayInfo.day)}
-                </span>
+                {/* Hijri day number: Elegant filled circle badge when selected */}
+                {isSelected ? (
+                  <span
+                    className="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-[#841c1c] text-white flex items-center justify-center font-bold text-sm sm:text-base shadow-xs leading-none transition-transform animate-in zoom-in-75 duration-150 shrink-0"
+                    style={{
+                      fontFamily:
+                        '"Cairo", "Traditional Arabic", -apple-system, sans-serif',
+                    }}
+                  >
+                    {num(dayInfo.day)}
+                  </span>
+                ) : (
+                  <span
+                    className={`w-7 h-7 sm:w-7.5 sm:h-7.5 flex items-center justify-center text-base sm:text-lg font-bold leading-none shrink-0 ${
+                      isFriday ? 'text-[#841c1c]' : 'text-[#8c1d1f]'
+                    }`}
+                    style={{
+                      fontFamily:
+                        '"Cairo", "Traditional Arabic", -apple-system, sans-serif',
+                    }}
+                  >
+                    {num(dayInfo.day)}
+                  </span>
+                )}
 
                 {/* First event icon for this date */}
                 {firstEventIcon && (
                   <div
-                    className="flex items-center justify-center shrink-0"
+                    className="flex items-center justify-center shrink-0 mt-0.5"
                     title={firstEventTitle || ''}
                   >
                     <EventIconRenderer
@@ -177,7 +181,7 @@ export const CalendarGrid = ({
                   // Regular Gregorian day number
                   <span
                     className={`font-sans text-[11px] mr-auto font-medium ${
-                      isSelected ? 'text-neutral-700 font-bold' : 'text-neutral-400'
+                      isSelected ? 'text-neutral-900 font-bold' : 'text-neutral-400'
                     }`}
                   >
                     {dayInfo.gregorianDay}
