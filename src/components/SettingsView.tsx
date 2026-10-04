@@ -10,36 +10,16 @@ interface SettingsViewProps {
   onSetAdjustment: (adj: number) => void;
   useArabicDigits: boolean;
   onToggleDigits: (useArabic: boolean) => void;
-  selectedCity: string;
-  onSelectCity: (city: string) => void;
   onJumpToScreenshotDate: () => void;
   user: User | null;
   notesCount: number;
 }
-
-const CITIES = [
-  'مكة المكرمة',
-  'المدينة المنورة',
-  'الرياض',
-  'جدة',
-  'الدمام',
-  'القصيم',
-  'أبها',
-  'دبي',
-  'أبوظبي',
-  'الكويت',
-  'الدوحة',
-  'القاهرة',
-  'عَمّان',
-];
 
 export const SettingsView = ({
   adjustment,
   onSetAdjustment,
   useArabicDigits,
   onToggleDigits,
-  selectedCity,
-  onSelectCity,
   onJumpToScreenshotDate,
   user,
   notesCount,
@@ -193,36 +173,19 @@ export const SettingsView = ({
           )}
         </div>
 
-        {/* PWA App Installation Card */}
-        <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-2xs">
-          <div className="flex items-center justify-between mb-2.5">
-            <span
-              className={`text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
-                isStandalone
-                  ? 'bg-emerald-100 text-emerald-800'
-                  : 'bg-neutral-100 text-neutral-700'
-              }`}
-            >
-              {isStandalone ? (
-                <>
-                  <Check size={12} />
-                  <span>مثبت كـ PWA</span>
-                </>
-              ) : (
-                <span>تطبيق ويب متقدم (PWA)</span>
-              )}
-            </span>
-            <div className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
-              <span>تثبيت التقويم على الشاشة الرئيسية</span>
-              <Smartphone size={14} className="text-[#841c1c]" />
+        {/* PWA App Installation Card (only shown when NOT installed; if installed, completely omitted) */}
+        {!isStandalone && (
+          <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-2xs">
+            <div className="flex items-center justify-between mb-2.5">
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-700">
+                تطبيق ويب متقدم (PWA)
+              </span>
+              <div className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
+                <span>تثبيت التقويم على الشاشة الرئيسية</span>
+                <Smartphone size={14} className="text-[#841c1c]" />
+              </div>
             </div>
-          </div>
 
-          {isStandalone ? (
-            <p className="text-[11px] text-emerald-800 bg-emerald-50/80 p-2.5 rounded-xl border border-emerald-200/60 leading-relaxed">
-              ✓ التطبيق يعمل الآن في وضع ملء الشاشة المستقل كـ تطبيق PWA مع دعم حفظ البيانات والعمل دون إنترنت (Offline).
-            </p>
-          ) : (
             <div className="space-y-2.5">
               <p className="text-[11px] text-neutral-600 leading-relaxed">
                 يمكنك تثبيت التقويم على هاتفك لفتحه بضغطة واحدة من الشاشة الرئيسية كأي تطبيق أصلي، بملء الشاشة وبسرعة فائقة.
@@ -248,8 +211,8 @@ export const SettingsView = ({
                 </div>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Screenshot Preset Banner */}
         <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 p-4 rounded-2xl border border-amber-200 shadow-2xs">
@@ -334,24 +297,6 @@ export const SettingsView = ({
               <span className="font-bold text-sm font-sans">غربية (1, 2, 3)</span>
             </button>
           </div>
-        </div>
-
-        {/* City for Prayer Times */}
-        <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-2xs">
-          <label className="block text-xs font-bold text-neutral-900 mb-2">
-            المدينة لحساب مواقيت الصلاة
-          </label>
-          <select
-            value={selectedCity}
-            onChange={(e) => onSelectCity(e.target.value)}
-            className="w-full text-xs font-bold text-neutral-800 border border-neutral-200 bg-neutral-50 rounded-xl p-2.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#841c1c] transition"
-          >
-            {CITIES.map((city) => (
-              <option key={city} value={city}>
-                {city}
-              </option>
-            ))}
-          </select>
         </div>
 
         {/* About Card */}

@@ -44,11 +44,6 @@ export function App() {
     return saved !== null ? saved === 'true' : true;
   });
 
-  // Selected city for prayer times
-  const [selectedCity, setSelectedCity] = useState<string>(() => {
-    return localStorage.getItem('hijri_prayer_city') || 'مكة المكرمة';
-  });
-
   // Show/hide Islamic events in calendar
   const [showIslamicEvents, setShowIslamicEvents] = useState<boolean>(() => {
     const saved = localStorage.getItem('hijri_show_islamic_events');
@@ -150,10 +145,6 @@ export function App() {
   useEffect(() => {
     localStorage.setItem('hijri_arabic_digits', useArabicDigits.toString());
   }, [useArabicDigits]);
-
-  useEffect(() => {
-    localStorage.setItem('hijri_prayer_city', selectedCity);
-  }, [selectedCity]);
 
   useEffect(() => {
     localStorage.setItem('hijri_show_islamic_events', showIslamicEvents.toString());
@@ -467,8 +458,6 @@ export function App() {
             onSetAdjustment={setAdjustment}
             useArabicDigits={useArabicDigits}
             onToggleDigits={setUseArabicDigits}
-            selectedCity={selectedCity}
-            onSelectCity={setSelectedCity}
             onJumpToScreenshotDate={() => handleJumpToDate(1435, 12, 19)}
             user={user}
             notesCount={userNotes.length}
