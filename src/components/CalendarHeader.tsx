@@ -28,6 +28,7 @@ interface CalendarHeaderProps {
   gregorianMonthYear?: string;
   todayDay: number;
   userNotes?: UserNote[];
+  deletedIslamicEventIds?: string[];
 }
 
 function normalizeArabic(text: string): string {
@@ -49,6 +50,7 @@ export const CalendarHeader = ({
   gregorianMonthYear,
   todayDay,
   userNotes = [],
+  deletedIslamicEventIds = [],
 }: CalendarHeaderProps) => {
   const [showPicker, setShowPicker] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -81,7 +83,7 @@ export const CalendarHeader = ({
     // Islamic events
     for (let m = 1; m <= 12; m++) {
       for (let d = 1; d <= 30; d++) {
-        const evs = getIslamicEvents(m, d);
+        const evs = getIslamicEvents(m, d, deletedIslamicEventIds);
         evs.forEach((ev) => {
           list.push({
             id: `islamic-${m}-${d}-${ev.id}`,
@@ -114,7 +116,7 @@ export const CalendarHeader = ({
     });
 
     return list;
-  }, [hijriYear, userNotes]);
+  }, [hijriYear, userNotes, deletedIslamicEventIds]);
 
   // Filter search results by keyword
   const filteredSearchResults = useMemo(() => {

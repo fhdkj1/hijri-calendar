@@ -55,6 +55,39 @@ export function App() {
     return saved !== null ? saved === 'true' : true;
   });
 
+  // Timeless deleted Islamic events list across the entire calendar
+  const [deletedIslamicEventIds, setDeletedIslamicEventIds] = useState<string[]>(() => {
+    const saved = localStorage.getItem('hijri_deleted_islamic_events');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      'hijri_deleted_islamic_events',
+      JSON.stringify(deletedIslamicEventIds)
+    );
+  }, [deletedIslamicEventIds]);
+
+  const handleDeleteIslamicEvent = (eventId: string) => {
+    setDeletedIslamicEventIds((prev) => {
+      if (!prev.includes(eventId)) {
+        return [...prev, eventId];
+      }
+      return prev;
+    });
+  };
+
+  const handleRestoreAllIslamicEvents = () => {
+    setDeletedIslamicEventIds([]);
+  };
+
   // User custom notes / events
   const [userNotes, setUserNotes] = useState<UserNote[]>(() => {
     const saved = localStorage.getItem('hijri_user_notes');
@@ -174,8 +207,13 @@ export function App() {
 
   // Generate calendar month data
   const calendarData = useMemo(() => {
-    return getHijriMonthCalendar(currentYear, currentMonth, adjustment);
-  }, [currentYear, currentMonth, adjustment]);
+    return getHijriMonthCalendar(
+      currentYear,
+      currentMonth,
+      adjustment,
+      deletedIslamicEventIds
+    );
+  }, [currentYear, currentMonth, adjustment, deletedIslamicEventIds]);
 
   // Gregorian month & year corresponding to this Hijri month
   const gregorianMonthYear = useMemo(() => {
@@ -368,6 +406,7 @@ export function App() {
                 gregorianMonthYear={gregorianMonthYear}
                 todayDay={todayHijri.day}
                 userNotes={userNotes}
+                deletedIslamicEventIds={deletedIslamicEventIds}
               />
 
               {/* Modern Calendar Grid */}
@@ -408,11 +447,16 @@ export function App() {
         {activeTab === 'events' && (
           <EventsListView
             currentHijriYear={currentYear}
-            adjustment={adjustment}
             useArabicDigits={useArabicDigits}
-            onSelectEventDate={handleJumpToDate}
+            onSelectEventDate={(year, month, day) => {
+              handleJumpToDate(year, month, day);
+              setActiveTab('calendar');
+            }}
             showIslamicEvents={showIslamicEvents}
             onToggleShowIslamicEvents={setShowIslamicEvents}
+            deletedIslamicEventIds={deletedIslamicEventIds}
+            onDeleteIslamicEvent={handleDeleteIslamicEvent}
+            onRestoreAllIslamicEvents={handleRestoreAllIslamicEvents}
           />
         )}
 

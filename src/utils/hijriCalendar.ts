@@ -108,167 +108,283 @@ export function toArabicNumerals(num: number | string): string {
   return String(num).replace(/[0-9]/g, (w) => digits[parseInt(w, 10)]);
 }
 
+export interface MasterIslamicEvent {
+  id: string;
+  month: number; // 1 to 12 (or 0 for every month like white days)
+  day: number; // 1 to 30
+  monthNameAr: string;
+  dayLabelAr: string;
+  titleAr: string;
+  titleEn: string;
+  icon: 'kaaba' | 'balloon' | 'crescent' | 'star' | 'book' | 'custom';
+  descriptionAr: string;
+  isHoliday?: boolean;
+}
+
 /**
- * Standard Islamic fixed holidays and occasions by Hijri month and day
+ * Perpetual Islamic fixed holidays and occasions across the entire Hijri calendar
  */
-export function getIslamicEvents(month: number, day: number): IslamicEvent[] {
+export const ALL_MASTER_ISLAMIC_EVENTS: MasterIslamicEvent[] = [
+  {
+    id: 'islamic-new-year',
+    month: 1,
+    day: 1,
+    monthNameAr: 'محرم',
+    dayLabelAr: '١ محرم',
+    titleAr: 'رأس السنة الهجرية',
+    titleEn: 'Islamic New Year',
+    icon: 'crescent',
+    descriptionAr: 'بداية السنة الهجرية الجديدة وفاتحة العام الهجري',
+    isHoliday: true,
+  },
+  {
+    id: 'tasua',
+    month: 1,
+    day: 9,
+    monthNameAr: 'محرم',
+    dayLabelAr: '٩ محرم',
+    titleAr: 'تاسوعاء',
+    titleEn: "Tasu'a",
+    icon: 'star',
+    descriptionAr: 'اليوم التاسع من شهر محرم ويستحب صيامه مع عاشوراء',
+  },
+  {
+    id: 'ashura',
+    month: 1,
+    day: 10,
+    monthNameAr: 'محرم',
+    dayLabelAr: '١٠ محرم',
+    titleAr: 'يوم عاشوراء',
+    titleEn: 'Day of Ashura',
+    icon: 'star',
+    descriptionAr: 'اليوم العاشر من محرم، نجّى الله فيه موسى وقومه',
+    isHoliday: true,
+  },
+  {
+    id: 'mawlid',
+    month: 3,
+    day: 12,
+    monthNameAr: 'ربيع الأول',
+    dayLabelAr: '١٢ ربيع الأول',
+    titleAr: 'المولد النبوي الشريف',
+    titleEn: "Prophet's Birthday (Mawlid)",
+    icon: 'crescent',
+    descriptionAr: 'ذكرى مولد خاتم الأنبياء والمرسلين نبينا محمد ﷺ',
+    isHoliday: true,
+  },
+  {
+    id: 'isra-miraj',
+    month: 7,
+    day: 27,
+    monthNameAr: 'رجب',
+    dayLabelAr: '٢٧ رجب',
+    titleAr: 'ذكرى الإسراء والمعراج',
+    titleEn: "Isra and Mi'raj",
+    icon: 'star',
+    descriptionAr: 'معجزة الإسراء من المسجد الحرام للأقصى والمعراج إلى السماء',
+    isHoliday: true,
+  },
+  {
+    id: 'nisf-shaban',
+    month: 8,
+    day: 15,
+    monthNameAr: 'شعبان',
+    dayLabelAr: '١٥ شعبان',
+    titleAr: 'ليلة النصف من شعبان',
+    titleEn: "Night of Mid-Sha'ban",
+    icon: 'star',
+    descriptionAr: 'ليلة مباركة في منتصف شهر شعبان المعظم',
+  },
+  {
+    id: 'ramadan-start',
+    month: 9,
+    day: 1,
+    monthNameAr: 'رمضان',
+    dayLabelAr: '١ رمضان',
+    titleAr: 'بداية شهر رمضان المبارك',
+    titleEn: 'First Day of Ramadan',
+    icon: 'crescent',
+    descriptionAr: 'أول أيام شهر الصيام والقيام وتنزيل القرآن الكريم',
+    isHoliday: true,
+  },
+  {
+    id: 'battle-of-badr',
+    month: 9,
+    day: 17,
+    monthNameAr: 'رمضان',
+    dayLabelAr: '١٧ رمضان',
+    titleAr: 'ذكرى غزوة بدر الكبرى',
+    titleEn: 'Battle of Badr',
+    icon: 'star',
+    descriptionAr: 'يوم الفرقان يوم التقى الجمعان في السابع عشر من رمضان',
+  },
+  {
+    id: 'laylat-al-qadr',
+    month: 9,
+    day: 27,
+    monthNameAr: 'رمضان',
+    dayLabelAr: '٢٧ رمضان',
+    titleAr: 'ليلة القدر (المتحرّاة)',
+    titleEn: 'Laylat al-Qadr',
+    icon: 'star',
+    descriptionAr: 'ليلة مباركة خير من ألف شهر - أوتار العشر الأواخر',
+  },
+  {
+    id: 'eid-fitr-1',
+    month: 10,
+    day: 1,
+    monthNameAr: 'شوال',
+    dayLabelAr: '١ شوال',
+    titleAr: 'عيد الفطر المبارك',
+    titleEn: 'Eid al-Fitr (Day 1)',
+    icon: 'balloon',
+    descriptionAr: 'أول أيام عيد الفطر المبارك وفرحة الصائمين',
+    isHoliday: true,
+  },
+  {
+    id: 'eid-fitr-2',
+    month: 10,
+    day: 2,
+    monthNameAr: 'شوال',
+    dayLabelAr: '٢ شوال',
+    titleAr: 'ثاني أيام عيد الفطر',
+    titleEn: 'Eid al-Fitr (Day 2)',
+    icon: 'balloon',
+    descriptionAr: 'ثاني أيام عيد الفطر السعيد',
+    isHoliday: true,
+  },
+  {
+    id: 'eid-fitr-3',
+    month: 10,
+    day: 3,
+    monthNameAr: 'شوال',
+    dayLabelAr: '٣ شوال',
+    titleAr: 'ثالث أيام عيد الفطر',
+    titleEn: 'Eid al-Fitr (Day 3)',
+    icon: 'balloon',
+    descriptionAr: 'ثالث أيام عيد الفطر المبارك',
+    isHoliday: true,
+  },
+  {
+    id: 'first-ten-dhulhijjah',
+    month: 12,
+    day: 1,
+    monthNameAr: 'ذو الحجة',
+    dayLabelAr: '١ ذو الحجة',
+    titleAr: 'بداية العشر الأوائل من ذي الحجة',
+    titleEn: 'First 10 Days of Dhu al-Hijjah',
+    icon: 'crescent',
+    descriptionAr: 'أفضل أيام الدنيا، العمل الصالح فيها أحب إلى الله',
+  },
+  {
+    id: 'arafah',
+    month: 12,
+    day: 9,
+    monthNameAr: 'ذو الحجة',
+    dayLabelAr: '٩ ذو الحجة',
+    titleAr: 'يوم عرفة',
+    titleEn: 'Day of Arafah',
+    icon: 'kaaba',
+    descriptionAr: 'يوم الحج الأكبر ووقفة عرفات، وصيامه يكفّر سنتين',
+    isHoliday: true,
+  },
+  {
+    id: 'eid-adha',
+    month: 12,
+    day: 10,
+    monthNameAr: 'ذو الحجة',
+    dayLabelAr: '١٠ ذو الحجة',
+    titleAr: 'عيد الأضحى المبارك (يوم النحر)',
+    titleEn: 'Eid al-Adha',
+    icon: 'balloon',
+    descriptionAr: 'عيد الأضحى المبارك ويوم النحر وذبح الأضاحي للحجاج والمسلمين',
+    isHoliday: true,
+  },
+  {
+    id: 'tashreeq-11',
+    month: 12,
+    day: 11,
+    monthNameAr: 'ذو الحجة',
+    dayLabelAr: '١١ ذو الحجة',
+    titleAr: 'أيام التشريق (اليوم الأول)',
+    titleEn: 'Days of Tashreeq (Day 1)',
+    icon: 'balloon',
+    descriptionAr: 'أيام أكل وشرب وذكر لله تعالى واستمرار رمي الجمرات',
+    isHoliday: true,
+  },
+  {
+    id: 'tashreeq-12',
+    month: 12,
+    day: 12,
+    monthNameAr: 'ذو الحجة',
+    dayLabelAr: '١٢ ذو الحجة',
+    titleAr: 'أيام التشريق (اليوم الثاني - النفر الأول)',
+    titleEn: 'Days of Tashreeq (Day 2)',
+    icon: 'balloon',
+    descriptionAr: 'ثاني أيام التشريق ويوم النفر الأول لمن تعجّل',
+    isHoliday: true,
+  },
+  {
+    id: 'tashreeq-13',
+    month: 12,
+    day: 13,
+    monthNameAr: 'ذو الحجة',
+    dayLabelAr: '١٣ ذو الحجة',
+    titleAr: 'أيام التشريق (اليوم الثالث - النفر الثاني)',
+    titleEn: 'Days of Tashreeq (Day 3)',
+    icon: 'balloon',
+    descriptionAr: 'ختام مناسك الحج والنفر الثاني للمتأخرين',
+    isHoliday: true,
+  },
+  {
+    id: 'white-days',
+    month: 0,
+    day: 13,
+    monthNameAr: 'كل الشهور',
+    dayLabelAr: '١٣، ١٤، ١٥ من كل شهر',
+    titleAr: 'صيام الأيام البيض',
+    titleEn: 'White Days',
+    icon: 'star',
+    descriptionAr: 'يستحب صيام الأيام البيض ١٣ و١٤ و١٥ من كل شهر هجري',
+  },
+];
+
+/**
+ * Standard Islamic fixed holidays and occasions by Hijri month and day.
+ * Excludes any event whose id is in excludedIds.
+ */
+export function getIslamicEvents(
+  month: number,
+  day: number,
+  excludedIds: string[] = []
+): IslamicEvent[] {
   const events: IslamicEvent[] = [];
 
-  // Muharram
-  if (month === 1 && day === 1) {
-    events.push({
-      id: 'islamic-new-year',
-      titleAr: 'رأس السنة الهجرية',
-      titleEn: 'Islamic New Year',
-      icon: 'crescent',
-      isHoliday: true,
-    });
-  }
-  if (month === 1 && day === 9) {
-    events.push({
-      id: 'tasua',
-      titleAr: 'تاسوعاء',
-      titleEn: "Tasu'a",
-      icon: 'star',
-    });
-  }
-  if (month === 1 && day === 10) {
-    events.push({
-      id: 'ashura',
-      titleAr: 'يوم عاشوراء',
-      titleEn: 'Day of Ashura',
-      icon: 'star',
-      isHoliday: true,
-    });
-  }
+  // Match month and day from master list
+  ALL_MASTER_ISLAMIC_EVENTS.forEach((item) => {
+    if (item.month === month && item.day === day) {
+      if (!excludedIds.includes(item.id)) {
+        events.push({
+          id: item.id,
+          titleAr: item.titleAr,
+          titleEn: item.titleEn,
+          icon: item.icon,
+          isHoliday: item.isHoliday,
+        });
+      }
+    }
+  });
 
-  // Rabi' al-Awwal
-  if (month === 3 && day === 12) {
-    events.push({
-      id: 'mawlid',
-      titleAr: 'المولد النبوي الشريف',
-      titleEn: "Prophet's Birthday (Mawlid)",
-      icon: 'crescent',
-      isHoliday: true,
-    });
-  }
-
-  // Rajab
-  if (month === 7 && day === 27) {
-    events.push({
-      id: 'isra-miraj',
-      titleAr: 'ذكرى الإسراء والمعراج',
-      titleEn: "Isra and Mi'raj",
-      icon: 'star',
-      isHoliday: true,
-    });
-  }
-
-  // Sha'ban
-  if (month === 8 && day === 15) {
-    events.push({
-      id: 'nisf-shaban',
-      titleAr: 'ليلة النصف من شعبان',
-      titleEn: "Night of Mid-Sha'ban",
-      icon: 'star',
-    });
-  }
-
-  // Ramadan
-  if (month === 9 && day === 1) {
-    events.push({
-      id: 'ramadan-start',
-      titleAr: 'بداية شهر رمضان المبارك',
-      titleEn: 'First Day of Ramadan',
-      icon: 'crescent',
-      isHoliday: true,
-    });
-  }
-  if (month === 9 && day === 27) {
-    events.push({
-      id: 'laylat-al-qadr',
-      titleAr: 'ليلة القدر (المتحرّاة)',
-      titleEn: 'Laylat al-Qadr',
-      icon: 'star',
-    });
-  }
-
-  // Shawwal (Eid al-Fitr)
-  if (month === 10 && day === 1) {
-    events.push({
-      id: 'eid-fitr-1',
-      titleAr: 'عيد الفطر المبارك',
-      titleEn: 'Eid al-Fitr (Day 1)',
-      icon: 'balloon',
-      isHoliday: true,
-    });
-  }
-  if (month === 10 && day === 2) {
-    events.push({
-      id: 'eid-fitr-2',
-      titleAr: 'ثاني أيام عيد الفطر',
-      titleEn: 'Eid al-Fitr (Day 2)',
-      icon: 'balloon',
-      isHoliday: true,
-    });
-  }
-  if (month === 10 && day === 3) {
-    events.push({
-      id: 'eid-fitr-3',
-      titleAr: 'ثالث أيام عيد الفطر',
-      titleEn: 'Eid al-Fitr (Day 3)',
-      icon: 'balloon',
-      isHoliday: true,
-    });
-  }
-
-  // Dhu al-Hijjah
-  if (month === 12 && day === 1) {
-    events.push({
-      id: 'first-ten-dhulhijjah',
-      titleAr: 'بداية العشر الأوائل من ذي الحجة',
-      titleEn: 'First 10 Days of Dhu al-Hijjah',
-      icon: 'crescent',
-    });
-  }
-  if (month === 12 && day === 9) {
-    // Exactly matching screenshot Kaaba icon
-    events.push({
-      id: 'arafah',
-      titleAr: 'يوم عرفة',
-      titleEn: 'Day of Arafah',
-      icon: 'kaaba',
-      isHoliday: true,
-    });
-  }
-  if (month === 12 && day === 10) {
-    // Exactly matching screenshot Pink balloon icon
-    events.push({
-      id: 'eid-adha',
-      titleAr: 'عيد الأضحى المبارك',
-      titleEn: 'Eid al-Adha',
-      icon: 'balloon',
-      isHoliday: true,
-    });
-  }
-  if (month === 12 && (day === 11 || day === 12 || day === 13)) {
-    events.push({
-      id: `tashreeq-${day}`,
-      titleAr: `أيام التشريق (اليوم ${day - 10})`,
-      titleEn: `Days of Tashreeq (${day - 10})`,
-      icon: 'balloon',
-      isHoliday: true,
-    });
-  }
-
-  // White days (الأيام البيض) on 13, 14, 15 of any month except during Eid days
+  // White days (الأيام البيض) on 13, 14, 15 of any month except during Eid al-Adha tashreeq
   if ((day === 13 || day === 14 || day === 15) && !(month === 12 && day === 13)) {
-    events.push({
-      id: `white-day-${day}`,
-      titleAr: `الأيام البيض (${day})`,
-      titleEn: `White Day (${day})`,
-      icon: 'star',
-    });
+    if (!excludedIds.includes('white-days') && !excludedIds.includes(`white-day-${day}`)) {
+      events.push({
+        id: `white-day-${day}`,
+        titleAr: `الأيام البيض (${day})`,
+        titleEn: `White Day (${day})`,
+        icon: 'star',
+      });
+    }
   }
 
   return events;
@@ -347,7 +463,12 @@ export function getArabicWeekdayIndex(date: Date): number {
 /**
  * Generates the full month calendar data for a given Hijri year and month.
  */
-export function getHijriMonthCalendar(targetYear: number, targetMonth: number, adjustment = 0) {
+export function getHijriMonthCalendar(
+  targetYear: number,
+  targetMonth: number,
+  adjustment = 0,
+  excludedEventIds: string[] = []
+) {
   const startDate = findHijriMonthStart(targetYear, targetMonth, adjustment);
   const days: HijriDateInfo[] = [];
 
@@ -378,7 +499,7 @@ export function getHijriMonthCalendar(targetYear: number, targetMonth: number, a
       gregorianDay: gDay,
       gregorianMonthNameEn: GREGORIAN_MONTHS_EN[gMonth - 1],
       gregorianMonthNameAr: GREGORIAN_MONTHS_AR[gMonth - 1],
-      events: getIslamicEvents(h.month, h.day),
+      events: getIslamicEvents(h.month, h.day, excludedEventIds),
     });
 
     curDate = new Date(curDate.getTime() + 86400000);
