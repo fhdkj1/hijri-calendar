@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { User } from 'firebase/auth';
-import { Settings, Sliders, Check, HelpCircle, Sparkles, CloudCheck, CloudOff, LogOut, Loader2 } from 'lucide-react';
+import { Settings, Sliders, Check, HelpCircle, Sparkles, CloudCheck, CloudOff, LogOut, Loader2, Smartphone, Download } from 'lucide-react';
 import { toArabicNumerals } from '../utils/hijriCalendar';
 import { signInWithGoogle, logOut } from '../services/firebase';
 import { GoogleIcon } from './SyncAccountBar';
@@ -45,6 +45,36 @@ export const SettingsView = ({
   notesCount,
 }: SettingsViewProps) => {
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isStandalone, setIsStandalone] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as any).standalone === true
+    );
+  });
+
+  useEffect(() => {
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setIsStandalone(true);
+    }
+    setDeferredPrompt(null);
+  };
 
   const num = (val: number | string) =>
     useArabicDigits ? toArabicNumerals(val) : String(val);
@@ -159,6 +189,64 @@ export const SettingsView = ({
                   </>
                 )}
               </button>
+            </div>
+          )}
+        </div>
+
+        {/* PWA App Installation Card */}
+        <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-2xs">
+          <div className="flex items-center justify-between mb-2.5">
+            <span
+              className={`text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
+                isStandalone
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : 'bg-neutral-100 text-neutral-700'
+              }`}
+            >
+              {isStandalone ? (
+                <>
+                  <Check size={12} />
+                  <span>مثبت كـ PWA</span>
+                </>
+              ) : (
+                <span>تطبيق ويب متقدم (PWA)</span>
+              )}
+            </span>
+            <div className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
+              <span>تثبيت التقويم على الشاشة الرئيسية</span>
+              <Smartphone size={14} className="text-[#841c1c]" />
+            </div>
+          </div>
+
+          {isStandalone ? (
+            <p className="text-[11px] text-emerald-800 bg-emerald-50/80 p-2.5 rounded-xl border border-emerald-200/60 leading-relaxed">
+              ✓ التطبيق يعمل الآن في وضع ملء الشاشة المستقل كـ تطبيق PWA مع دعم حفظ البيانات والعمل دون إنترنت (Offline).
+            </p>
+          ) : (
+            <div className="space-y-2.5">
+              <p className="text-[11px] text-neutral-600 leading-relaxed">
+                يمكنك تثبيت التقويم على هاتفك لفتحه بضغطة واحدة من الشاشة الرئيسية كأي تطبيق أصلي، بملء الشاشة وبسرعة فائقة.
+              </p>
+
+              {deferredPrompt ? (
+                <button
+                  onClick={handleInstallClick}
+                  className="w-full flex items-center justify-center gap-2 bg-[#841c1c] hover:bg-[#6e1414] active:scale-98 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-xs transition"
+                >
+                  <Download size={14} />
+                  <span>تثبيت التطبيق الآن على جهازك</span>
+                </button>
+              ) : (
+                <div className="bg-neutral-50 p-2.5 rounded-xl border border-neutral-200/70 text-[11px] text-neutral-700 space-y-1">
+                  <div className="font-bold text-neutral-900 text-xs">طريقة الإضافة السريعة:</div>
+                  <div className="text-neutral-600 leading-relaxed">
+                    • <strong>آيفون (Safari):</strong> اضغط على زر المشاركة <span className="font-mono bg-neutral-200/70 px-1 py-0.5 rounded text-[10px]">⎋ Share</span> ثم اختر <strong>«إضافة إلى الصفحة الرئيسية (Add to Home Screen)»</strong>.
+                  </div>
+                  <div className="text-neutral-600 leading-relaxed">
+                    • <strong>أندرويد (Chrome):</strong> اضغط على قائمة الثلاث نقاط <span className="font-mono bg-neutral-200/70 px-1 py-0.5 rounded text-[10px]">⋮</span> ثم اختر <strong>«تثبيت التطبيق (Install app)»</strong>.
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
