@@ -24,7 +24,10 @@ import { SettingsView } from './components/SettingsView';
 
 export function App() {
   // Navigation tabs
-  const [activeTab, setActiveTab] = useState<TabType>('calendar');
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    const saved = localStorage.getItem('hijri_active_tab') as TabType;
+    return saved || 'calendar';
+  });
 
   // Google Auth & Cloud Sync state
   const [user, setUser] = useState<User | null>(null);
@@ -76,15 +79,35 @@ export function App() {
     ];
   });
 
-  // Initial date: set to Dhu al-Hijjah 1435, Day 19 (matching screenshot)
-  const [currentYear, setCurrentYear] = useState<number>(1435);
-  const [currentMonth, setCurrentMonth] = useState<number>(12);
-  const [selectedDay, setSelectedDay] = useState<number>(19);
+  // Selected date: loaded from localStorage so refresh keeps the user on the exact same date
+  const [currentYear, setCurrentYear] = useState<number>(() => {
+    const saved = localStorage.getItem('hijri_selected_year');
+    return saved !== null ? parseInt(saved, 10) : 1435;
+  });
+  const [currentMonth, setCurrentMonth] = useState<number>(() => {
+    const saved = localStorage.getItem('hijri_selected_month');
+    return saved !== null ? parseInt(saved, 10) : 12;
+  });
+  const [selectedDay, setSelectedDay] = useState<number>(() => {
+    const saved = localStorage.getItem('hijri_selected_day');
+    return saved !== null ? parseInt(saved, 10) : 19;
+  });
 
   // Today's actual date
   const todayHijri = useMemo(() => {
     return getHijriFromGregorian(new Date(), adjustment);
   }, [adjustment]);
+
+  // Persist selected date and tab locally so refresh preserves them
+  useEffect(() => {
+    localStorage.setItem('hijri_selected_year', currentYear.toString());
+    localStorage.setItem('hijri_selected_month', currentMonth.toString());
+    localStorage.setItem('hijri_selected_day', selectedDay.toString());
+  }, [currentYear, currentMonth, selectedDay]);
+
+  useEffect(() => {
+    localStorage.setItem('hijri_active_tab', activeTab);
+  }, [activeTab]);
 
   // Persist settings locally
   useEffect(() => {
