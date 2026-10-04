@@ -89,7 +89,7 @@ export const CalendarGrid = ({
           const isSelected = dayInfo.day === selectedDay;
           const gInfo = firstDayOfGMonthMap.get(dayInfo.day);
           const noteInfo = notesDayMap[dayInfo.day];
-          const isFriday = dayInfo.weekdayIndex === 6;
+          const isFriday = dayInfo.weekdayIndex === 5;
 
           // Determine the first event on this date
           let firstEventIcon: string | null = null;

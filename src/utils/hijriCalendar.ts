@@ -81,25 +81,25 @@ export const GREGORIAN_MONTHS_AR = [
   'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
 ];
 
-// Weekdays starting from Saturday (السبت) RTL as in the screenshot
+// Weekdays starting from Sunday (الأحد)
 export const ARABIC_WEEKDAYS = [
-  'السبت',
   'الأحد',
   'الإثنين',
   'الثلاثاء',
   'الأربعاء',
   'الخميس',
   'الجمعة',
+  'السبت',
 ];
 
 export const ENGLISH_WEEKDAYS = [
-  'Saturday',
   'Sunday',
   'Monday',
   'Tuesday',
   'Wednesday',
   'Thursday',
   'Friday',
+  'Saturday',
 ];
 
 // Convert Western digits (123) to Eastern Arabic digits (١٢٣)
@@ -452,12 +452,11 @@ export function findHijriMonthStart(targetYear: number, targetMonth: number, adj
 }
 
 /**
- * Returns weekday index: 0 = السبت (Sat), 1 = الأحد (Sun), ..., 6 = الجمعة (Fri)
+ * Returns weekday index: 0 = الأحد (Sun), 1 = الإثنين (Mon), ..., 5 = الجمعة (Fri), 6 = السبت (Sat)
  */
 export function getArabicWeekdayIndex(date: Date): number {
-  // JS getDay(): 0 = Sun, 1 = Mon, 2 = Tue, 3 = Wed, 4 = Thu, 5 = Fri, 6 = Sat
-  const jsDay = date.getDay();
-  return (jsDay + 1) % 7;
+  // JS getDay(): 0 = Sun (الأحد), 1 = Mon, ..., 5 = Fri (الجمعة), 6 = Sat (السبت)
+  return date.getDay();
 }
 
 /**
