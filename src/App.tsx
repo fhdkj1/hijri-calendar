@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import type { User } from 'firebase/auth';
 import {
   getHijriMonthCalendar,
@@ -235,6 +235,40 @@ export function App() {
     setSelectedDay(1);
   };
 
+  // Swipe gesture handling for month navigation (Right = Next, Left = Previous)
+  const touchStartXRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchStartXRef.current = e.touches[0].clientX;
+      touchStartYRef.current = e.touches[0].clientY;
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null || touchStartYRef.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+
+    const diffX = touchEndX - touchStartXRef.current;
+    const diffY = touchEndY - touchStartYRef.current;
+
+    touchStartXRef.current = null;
+    touchStartYRef.current = null;
+
+    // Threshold: at least 40px horizontal movement, and horizontal distance > vertical distance
+    if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY) * 1.2) {
+      if (diffX > 0) {
+        // Swiped Right -> Next Month
+        handleNextMonth();
+      } else {
+        // Swiped Left -> Previous Month
+        handlePrevMonth();
+      }
+    }
+  };
+
   const handleJumpToDate = (year: number, month: number, day: number) => {
     setCurrentYear(year);
     setCurrentMonth(month);
@@ -291,30 +325,37 @@ export function App() {
         {/* Calendar View */}
         {activeTab === 'calendar' && (
           <div className="flex-1 flex flex-col overflow-hidden bg-white">
-            {/* Modern Header */}
-            <CalendarHeader
-              hijriYear={currentYear}
-              hijriMonth={currentMonth}
-              selectedDay={selectedDay}
-              onPrevMonth={handlePrevMonth}
-              onNextMonth={handleNextMonth}
-              onJumpToDate={handleJumpToDate}
-              onResetToToday={handleResetToToday}
-              useArabicDigits={useArabicDigits}
-              isToday={isToday}
-              gregorianMonthYear={gregorianMonthYear}
-            />
+            {/* Swipable Calendar Area (Header + Grid) */}
+            <div
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+              className="flex flex-col select-none touch-pan-y"
+            >
+              {/* Modern Header */}
+              <CalendarHeader
+                hijriYear={currentYear}
+                hijriMonth={currentMonth}
+                selectedDay={selectedDay}
+                onPrevMonth={handlePrevMonth}
+                onNextMonth={handleNextMonth}
+                onJumpToDate={handleJumpToDate}
+                onResetToToday={handleResetToToday}
+                useArabicDigits={useArabicDigits}
+                isToday={isToday}
+                gregorianMonthYear={gregorianMonthYear}
+              />
 
-            {/* Modern Calendar Grid */}
-            <CalendarGrid
-              days={calendarData.days}
-              startWeekday={calendarData.startWeekday}
-              selectedDay={selectedDay}
-              onSelectDay={(day) => setSelectedDay(day)}
-              useArabicDigits={useArabicDigits}
-              notesDayMap={notesDayMap}
-              showIslamicEvents={showIslamicEvents}
-            />
+              {/* Modern Calendar Grid */}
+              <CalendarGrid
+                days={calendarData.days}
+                startWeekday={calendarData.startWeekday}
+                selectedDay={selectedDay}
+                onSelectDay={(day) => setSelectedDay(day)}
+                useArabicDigits={useArabicDigits}
+                notesDayMap={notesDayMap}
+                showIslamicEvents={showIslamicEvents}
+              />
+            </div>
 
             {/* Modern Ruled Notebook / Occasions & Notes Section */}
             <RuledNotebookSection
