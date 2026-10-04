@@ -71,6 +71,8 @@ export const EventIconRenderer: React.FC<EventIconRendererProps> = ({
       return <BalloonIcon size={size} className={className} />;
     case 'moon':
       return <Moon size={size} className={`text-indigo-600 fill-indigo-100 ${className}`} />;
+    case 'crescent':
+      return <Moon size={size} className={`text-amber-600 fill-amber-300 ${className}`} />;
     case 'book':
       return <BookOpen size={size} className={`text-teal-600 ${className}`} />;
     case 'bell':

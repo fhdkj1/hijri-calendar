@@ -3,7 +3,6 @@ import {
   type HijriDateInfo,
   toArabicNumerals,
 } from '../utils/hijriCalendar';
-import { KaabaIcon, BalloonIcon } from './CalendarIcons';
 import { EventIconRenderer } from './EventIcons';
 
 interface CalendarGridProps {
@@ -12,7 +11,7 @@ interface CalendarGridProps {
   selectedDay: number;
   onSelectDay: (day: number) => void;
   useArabicDigits: boolean;
-  notesDayMap: Record<number, { count: number; icon?: string }>;
+  notesDayMap: Record<number, { count: number; icon?: string; title?: string }>;
   showIslamicEvents?: boolean;
 }
 
@@ -89,11 +88,20 @@ export const CalendarGrid = ({
         {days.map((dayInfo) => {
           const isSelected = dayInfo.day === selectedDay;
           const gInfo = firstDayOfGMonthMap.get(dayInfo.day);
-          const hasKaaba = showIslamicEvents && dayInfo.events.some((e) => e.icon === 'kaaba');
-          const hasBalloon = showIslamicEvents && dayInfo.events.some((e) => e.icon === 'balloon');
           const noteInfo = notesDayMap[dayInfo.day];
-          const hasNotes = !!noteInfo;
           const isFriday = dayInfo.weekdayIndex === 6;
+
+          // Determine the first event on this date
+          let firstEventIcon: string | null = null;
+          let firstEventTitle: string | null = null;
+
+          if (showIslamicEvents && dayInfo.events && dayInfo.events.length > 0) {
+            firstEventIcon = dayInfo.events[0].icon || 'sparkles';
+            firstEventTitle = dayInfo.events[0].titleAr;
+          } else if (noteInfo) {
+            firstEventIcon = noteInfo.icon || 'pin';
+            firstEventTitle = noteInfo.title || 'حدث مسجل';
+          }
 
           return (
             <div
@@ -107,7 +115,7 @@ export const CalendarGrid = ({
                   : 'bg-white hover:bg-neutral-50'
               }`}
             >
-              {/* Top Row: Hijri Day Number + Event Icons */}
+              {/* Top Row: Hijri Day Number + First Event Icon */}
               <div className="flex items-start justify-between">
                 {/* Hijri day number in rich maroon font */}
                 <span
@@ -126,25 +134,19 @@ export const CalendarGrid = ({
                   {num(dayInfo.day)}
                 </span>
 
-                {/* Event icons inside cell */}
-                <div className="flex items-center space-x-0.5 space-x-reverse">
-                  {hasKaaba && <KaabaIcon size={15} className="drop-shadow-xs" />}
-                  {hasBalloon && <BalloonIcon size={15} className="drop-shadow-xs" />}
-                  {hasNotes && (
-                    <div className="flex items-center gap-0.5">
-                      <EventIconRenderer
-                        icon={noteInfo.icon || 'pin'}
-                        size={13}
-                        className="drop-shadow-2xs"
-                      />
-                      {noteInfo.count > 1 && (
-                        <span className="text-[8px] font-bold text-amber-900 bg-amber-200/90 rounded-full px-0.5 leading-none">
-                          {noteInfo.count}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </div>
+                {/* First event icon for this date */}
+                {firstEventIcon && (
+                  <div
+                    className="flex items-center justify-center shrink-0"
+                    title={firstEventTitle || ''}
+                  >
+                    <EventIconRenderer
+                      icon={firstEventIcon}
+                      size={15}
+                      className="drop-shadow-xs"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Bottom Row: Gregorian Date / Month Badge */}

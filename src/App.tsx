@@ -249,13 +249,13 @@ export function App() {
     currentMonth === todayHijri.month &&
     selectedDay === todayHijri.day;
 
-  // Map of days with user notes (count + chosen icon)
+  // Map of days with user notes (count + chosen icon + title)
   const notesDayMap = useMemo(() => {
-    const map: Record<number, { count: number; icon?: string }> = {};
+    const map: Record<number, { count: number; icon?: string; title?: string }> = {};
     userNotes.forEach((n) => {
       if (n.hijriYear === currentYear && n.hijriMonth === currentMonth) {
         if (!map[n.hijriDay]) {
-          map[n.hijriDay] = { count: 1, icon: n.icon || 'pin' };
+          map[n.hijriDay] = { count: 1, icon: n.icon || 'pin', title: n.title };
         } else {
           map[n.hijriDay].count += 1;
         }
