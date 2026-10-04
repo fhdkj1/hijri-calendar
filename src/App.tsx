@@ -435,6 +435,10 @@ export function App() {
               showIslamicEvents={showIslamicEvents}
               selectedDay={selectedDay}
               onSelectDay={(day) => setSelectedDay(day)}
+              calendarDays={calendarData.days}
+              todayHijri={todayHijri}
+              currentYear={currentYear}
+              currentMonth={currentMonth}
             />
           </div>
         )}

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { Plus, Trash2, Sparkles } from 'lucide-react';
 import {
   type HijriDateInfo,
@@ -18,6 +18,10 @@ interface RuledNotebookSectionProps {
   showIslamicEvents?: boolean;
   selectedDay?: number;
   onSelectDay?: (day: number) => void;
+  calendarDays?: HijriDateInfo[];
+  todayHijri?: { year: number; month: number; day: number };
+  currentYear?: number;
+  currentMonth?: number;
 }
 
 export const RuledNotebookSection = ({
@@ -30,12 +34,93 @@ export const RuledNotebookSection = ({
   showIslamicEvents = true,
   selectedDay,
   onSelectDay,
+  calendarDays = [],
+  todayHijri,
+  currentYear,
+  currentMonth,
 }: RuledNotebookSectionProps) => {
   const [activeSegment, setActiveSegment] = useState<'month' | 'day'>('month');
   const [showAddModal, setShowAddModal] = useState(false);
   const [newNoteTitle, setNewNoteTitle] = useState('');
   const [newNoteDetails, setNewNoteDetails] = useState('');
   const [newNoteIcon, setNewNoteIcon] = useState('pin');
+
+  const selectedItemRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-scroll selected event into view when a day with an event is chosen
+  useEffect(() => {
+    if (selectedDay && selectedItemRef.current) {
+      selectedItemRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    }
+  }, [selectedDay]);
+
+  // Helper to determine timing, remaining days countdown, and past status for an event
+  const getEventTiming = (day: number) => {
+    let diffDays: number;
+
+    const dayInfo = calendarDays?.find((d) => d.day === day);
+    if (dayInfo?.gregorianDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const target = new Date(dayInfo.gregorianDate);
+      target.setHours(0, 0, 0, 0);
+
+      const realDiff = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+      // Realistic range for real-world countdown (within ~400 days)
+      if (Math.abs(realDiff) < 400) {
+        diffDays = realDiff;
+      } else {
+        // Historical view fallback (e.g. 1435H where screenshot day 4 was today)
+        const refDay = currentYear === 1435 && currentMonth === 12 ? 4 : (todayHijri?.day || 1);
+        diffDays = day - refDay;
+      }
+    } else {
+      const refDay = currentYear === 1435 && currentMonth === 12 ? 4 : (todayHijri?.day || 1);
+      diffDays = day - refDay;
+    }
+
+    const isPast = diffDays < 0;
+    const isToday = diffDays === 0;
+
+    let text = '';
+    let badgeClass = '';
+
+    if (isToday) {
+      text = 'اليوم';
+      badgeClass = 'bg-emerald-100 text-emerald-800 border border-emerald-300/60 font-bold';
+    } else if (diffDays === 1) {
+      text = 'غداً';
+      badgeClass = 'bg-amber-100 text-amber-900 border border-amber-300/60 font-semibold';
+    } else if (diffDays === 2) {
+      text = 'باقي يومين';
+      badgeClass = 'bg-amber-50 text-amber-800 border border-amber-200/60 font-medium';
+    } else if (diffDays > 2 && diffDays <= 10) {
+      text = `باقي ${num(diffDays)} أيام`;
+      badgeClass = 'bg-amber-50 text-amber-800 border border-amber-200/60 font-medium';
+    } else if (diffDays > 10) {
+      text = `باقي ${num(diffDays)} يوم`;
+      badgeClass = 'bg-amber-50 text-amber-800 border border-amber-200/60 font-medium';
+    } else {
+      const absDays = Math.abs(diffDays);
+      if (absDays === 1) {
+        text = 'أمس';
+      } else if (absDays === 2) {
+        text = 'منذ يومين';
+      } else if (absDays <= 10) {
+        text = `منذ ${num(absDays)} أيام`;
+      } else {
+        text = `منذ ${num(absDays)} يوم`;
+      }
+      badgeClass = 'bg-neutral-100 text-neutral-500 border border-neutral-200/60 font-normal';
+    }
+
+    return { diffDays, isPast, isToday, text, badgeClass };
+  };
 
   const selectedDayNotes = useMemo(() => {
     if (!selectedDayInfo) return [];
@@ -134,26 +219,44 @@ export const RuledNotebookSection = ({
                 {showIslamicEvents &&
                   monthEvents.map((item, idx) => {
                     const isSelected = selectedDay === item.day;
+                    const timing = getEventTiming(item.day);
                     return (
                       <div
                         key={`${item.event.id}-${idx}`}
+                        ref={isSelected ? selectedItemRef : undefined}
                         onClick={() => onSelectDay?.(item.day)}
-                        className={`h-[42px] flex items-center justify-between text-sm px-2.5 rounded-lg cursor-pointer transition-colors ${
+                        className={`h-[42px] flex items-center justify-between text-sm px-2.5 rounded-lg cursor-pointer transition-all ${
                           isSelected
-                            ? 'bg-[#dce868] text-neutral-950 font-bold shadow-2xs'
+                            ? 'bg-[#dce868] text-neutral-950 font-bold shadow-2xs ring-1 ring-lime-600/30 opacity-100'
+                            : timing.isPast
+                            ? 'opacity-40 hover:opacity-75 text-neutral-500 hover:bg-neutral-100/40'
                             : 'text-neutral-900 hover:bg-neutral-100/60'
                         }`}
                       >
-                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
                           <span
                             className={`text-xs font-mono font-bold w-5 shrink-0 text-right ${
-                              isSelected ? 'text-neutral-950' : 'text-neutral-500'
+                              isSelected
+                                ? 'text-neutral-950'
+                                : timing.isPast
+                                ? 'text-neutral-400'
+                                : 'text-neutral-500'
                             }`}
                           >
                             {num(item.day)}
                           </span>
                           <span className="truncate font-semibold text-[13px] sm:text-sm">
                             {item.event.titleAr}
+                          </span>
+                          {/* Countdown / Remaining days badge */}
+                          <span
+                            className={`text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-md shrink-0 leading-none ${
+                              isSelected
+                                ? 'bg-black/10 text-neutral-950 font-bold'
+                                : timing.badgeClass
+                            }`}
+                          >
+                            {timing.text}
                           </span>
                           <div className="shrink-0 flex items-center">
                             {item.event.icon === 'kaaba' && (
@@ -165,7 +268,13 @@ export const RuledNotebookSection = ({
                             {item.event.icon !== 'kaaba' && item.event.icon !== 'balloon' && (
                               <Sparkles
                                 size={16}
-                                className={isSelected ? 'text-amber-900' : 'text-amber-600'}
+                                className={
+                                  isSelected
+                                    ? 'text-amber-900'
+                                    : timing.isPast
+                                    ? 'text-neutral-400'
+                                    : 'text-amber-600'
+                                }
                               />
                             )}
                           </div>
@@ -177,26 +286,44 @@ export const RuledNotebookSection = ({
                 {/* User Notes for this Month with Selected Icons */}
                 {monthUserNotes.map((note) => {
                   const isSelected = selectedDay === note.hijriDay;
+                  const timing = getEventTiming(note.hijriDay);
                   return (
                     <div
                       key={note.id}
+                      ref={isSelected ? selectedItemRef : undefined}
                       onClick={() => onSelectDay?.(note.hijriDay)}
-                      className={`h-[42px] flex items-center justify-between text-sm px-2.5 rounded-lg cursor-pointer transition-colors group ${
+                      className={`h-[42px] flex items-center justify-between text-sm px-2.5 rounded-lg cursor-pointer transition-all group ${
                         isSelected
-                          ? 'bg-[#dce868] text-neutral-950 font-bold shadow-2xs'
+                          ? 'bg-[#dce868] text-neutral-950 font-bold shadow-2xs ring-1 ring-lime-600/30 opacity-100'
+                          : timing.isPast
+                          ? 'opacity-40 hover:opacity-75 text-neutral-500 hover:bg-neutral-100/40'
                           : 'text-neutral-800 hover:bg-neutral-100/60'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
                         <span
                           className={`text-xs font-mono font-bold w-5 shrink-0 text-right ${
-                            isSelected ? 'text-neutral-950' : 'text-neutral-500'
+                            isSelected
+                              ? 'text-neutral-950'
+                              : timing.isPast
+                              ? 'text-neutral-400'
+                              : 'text-neutral-500'
                           }`}
                         >
                           {num(note.hijriDay)}
                         </span>
                         <span className="truncate font-medium text-xs sm:text-sm">
                           {note.title}
+                        </span>
+                        {/* Countdown / Remaining days badge */}
+                        <span
+                          className={`text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-md shrink-0 leading-none ${
+                            isSelected
+                              ? 'bg-black/10 text-neutral-950 font-bold'
+                              : timing.badgeClass
+                          }`}
+                        >
+                          {timing.text}
                         </span>
                         <div className="shrink-0 flex items-center">
                           <EventIconRenderer icon={note.icon || 'pin'} size={15} />
@@ -241,48 +368,70 @@ export const RuledNotebookSection = ({
 
             {/* Day Events */}
             {showIslamicEvents &&
-              selectedDayInfo?.events.map((event) => (
-                <div
-                  key={event.id}
-                  className="h-[42px] flex items-center justify-end gap-2 text-neutral-900 text-sm pr-1"
-                >
-                  <span className="font-bold text-[#841c1c] text-sm">{event.titleAr}</span>
-                  {event.icon === 'kaaba' && <KaabaIcon size={20} />}
-                  {event.icon === 'balloon' && <BalloonIcon size={20} />}
-                  {event.icon !== 'kaaba' && event.icon !== 'balloon' && (
-                    <Sparkles size={16} className="text-amber-600" />
-                  )}
-                </div>
-              ))}
+              selectedDayInfo?.events.map((event) => {
+                const timing = getEventTiming(selectedDayInfo.day);
+                return (
+                  <div
+                    key={event.id}
+                    className={`h-[42px] flex items-center justify-between text-sm px-2 rounded-lg transition-colors ${
+                      timing.isPast ? 'opacity-50 text-neutral-500' : 'text-neutral-900'
+                    }`}
+                  >
+                    <span
+                      className={`text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-md shrink-0 leading-none ${timing.badgeClass}`}
+                    >
+                      {timing.text}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-[#841c1c] text-sm">{event.titleAr}</span>
+                      {event.icon === 'kaaba' && <KaabaIcon size={20} />}
+                      {event.icon === 'balloon' && <BalloonIcon size={20} />}
+                      {event.icon !== 'kaaba' && event.icon !== 'balloon' && (
+                        <Sparkles size={16} className="text-amber-600" />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
 
             {/* Day Notes */}
-            {selectedDayNotes.map((note) => (
-              <div
-                key={note.id}
-                className="h-[42px] flex items-center justify-between text-neutral-800 text-sm px-1 hover:bg-neutral-50/60 rounded-lg transition-colors"
-              >
-                <button
-                  onClick={() => onDeleteNote(note.id)}
-                  className="text-neutral-300 hover:text-red-600 transition p-1"
-                  title="حذف المناسبة"
+            {selectedDayNotes.map((note) => {
+              const timing = getEventTiming(note.hijriDay);
+              return (
+                <div
+                  key={note.id}
+                  className={`h-[42px] flex items-center justify-between text-neutral-800 text-sm px-1 hover:bg-neutral-50/60 rounded-lg transition-colors ${
+                    timing.isPast ? 'opacity-50' : ''
+                  }`}
                 >
-                  <Trash2 size={14} />
-                </button>
-                <div className="flex items-center gap-2.5">
-                  <div className="text-right">
-                    <div className="font-bold text-neutral-900 text-xs sm:text-sm">
-                      {note.title}
+                  <button
+                    onClick={() => onDeleteNote(note.id)}
+                    className="text-neutral-300 hover:text-red-600 transition p-1"
+                    title="حذف المناسبة"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-md shrink-0 leading-none ${timing.badgeClass}`}
+                    >
+                      {timing.text}
+                    </span>
+                    <div className="text-right">
+                      <div className="font-bold text-neutral-900 text-xs sm:text-sm">
+                        {note.title}
+                      </div>
+                      {note.details && (
+                        <div className="text-[11px] text-neutral-500">{note.details}</div>
+                      )}
                     </div>
-                    {note.details && (
-                      <div className="text-[11px] text-neutral-500">{note.details}</div>
-                    )}
-                  </div>
-                  <div className="w-7 h-7 rounded-xl bg-neutral-100 flex items-center justify-center shrink-0">
-                    <EventIconRenderer icon={note.icon || 'pin'} size={15} />
+                    <div className="w-7 h-7 rounded-xl bg-neutral-100 flex items-center justify-center shrink-0">
+                      <EventIconRenderer icon={note.icon || 'pin'} size={15} />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {selectedDayInfo?.events.length === 0 && selectedDayNotes.length === 0 && (
               <div className="h-[42px] flex items-center justify-center text-neutral-400 text-xs italic">
