@@ -343,6 +343,8 @@ export function App() {
                 useArabicDigits={useArabicDigits}
                 isToday={isToday}
                 gregorianMonthYear={gregorianMonthYear}
+                todayDay={todayHijri.day}
+                userNotes={userNotes}
               />
 
               {/* Modern Calendar Grid */}
