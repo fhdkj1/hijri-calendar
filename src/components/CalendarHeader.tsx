@@ -49,37 +49,48 @@ export const CalendarHeader = ({
   // Exact format from the user's screenshot: "ذو الحجة ١٩-١٢-١٤٣٥ هـ"
   const formattedHeader = `${monthName} ${num(selectedDay)}-${num(hijriMonth)}-${num(hijriYear)} هـ`;
 
+  // Dynamic responsive font sizing so the title is guaranteed to ALWAYS fit on one single line
+  const getTitleFontSizeClass = () => {
+    if (formattedHeader.length > 23) {
+      return 'text-[13px] min-[360px]:text-[14px] sm:text-base';
+    }
+    if (formattedHeader.length > 18) {
+      return 'text-[14px] min-[360px]:text-[15px] sm:text-lg';
+    }
+    return 'text-[15px] min-[360px]:text-base sm:text-xl';
+  };
+
   const handleApplyJump = () => {
     onJumpToDate(tempYear, tempMonth, 1);
     setShowPicker(false);
   };
 
   return (
-    <div className="bg-white/95 backdrop-blur-md border-b border-neutral-150/80 px-3 pt-2.5 pb-2 select-none z-20">
-      <div className="flex items-center justify-between">
+    <div className="bg-white/95 backdrop-blur-md border-b border-neutral-150/80 px-2 sm:px-3 pt-2 pb-1.5 select-none z-20">
+      <div className="flex items-center justify-between gap-1">
         {/* Next Month Button (RTL: right arrow goes forward) */}
         <button
           onClick={onNextMonth}
-          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-100 active:bg-neutral-200/80 text-neutral-700 transition active:scale-90"
+          className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full hover:bg-neutral-100 active:bg-neutral-200/80 text-neutral-700 transition active:scale-90 shrink-0"
           title="الشهر التالي"
           aria-label="الشهر التالي"
         >
-          <ChevronRight size={22} className="stroke-[2.2]" />
+          <ChevronRight size={20} className="stroke-[2.2]" />
         </button>
 
-        {/* Center Title Pill with Hijri on top and Gregorian below */}
+        {/* Center Title Pill with Hijri on top and Gregorian below (Always ONE single line) */}
         <button
           onClick={() => {
             setTempYear(hijriYear);
             setTempMonth(hijriMonth);
             setShowPicker(true);
           }}
-          className="group flex flex-col items-center justify-center py-1 px-3.5 rounded-2xl hover:bg-neutral-100/90 active:bg-neutral-200/70 transition-all border border-transparent hover:border-neutral-200 text-center"
+          className="group flex-1 min-w-0 flex flex-col items-center justify-center py-0.5 px-1 sm:px-2 rounded-xl hover:bg-neutral-100/90 active:bg-neutral-200/70 transition-all border border-transparent hover:border-neutral-200 text-center overflow-hidden"
           title="انقر لتغيير الشهر أو السنة"
         >
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center justify-center gap-1 max-w-full">
             <span
-              className="text-lg sm:text-xl font-bold tracking-tight text-[#841c1c] group-hover:text-[#9e1c1c] transition-colors leading-tight"
+              className={`${getTitleFontSizeClass()} font-bold tracking-tight text-[#841c1c] group-hover:text-[#9e1c1c] transition-colors leading-tight whitespace-nowrap`}
               style={{
                 fontFamily:
                   '"Cairo", "Traditional Arabic", -apple-system, sans-serif',
@@ -88,38 +99,38 @@ export const CalendarHeader = ({
               {formattedHeader}
             </span>
             <ChevronDown
-              size={15}
-              className="text-neutral-400 group-hover:text-neutral-600 transition-transform group-hover:translate-y-0.5"
+              size={14}
+              className="text-neutral-400 group-hover:text-neutral-600 transition-transform group-hover:translate-y-0.5 shrink-0"
             />
           </div>
 
           {gregorianMonthYear && (
-            <span className="text-[11px] sm:text-xs font-semibold text-neutral-500 font-sans tracking-tight mt-0.5">
+            <span className="text-[10px] sm:text-xs font-semibold text-neutral-500 font-sans tracking-tight mt-0.5 whitespace-nowrap">
               {gregorianMonthYear}
             </span>
           )}
         </button>
 
-        {/* Prev Month Button */}
-        <div className="flex items-center gap-1">
+        {/* Prev Month Button & Today Indicator */}
+        <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
           {!isToday && (
             <button
               onClick={onResetToToday}
-              className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded-full transition flex items-center gap-1 border border-emerald-200/60"
+              className="text-[10px] font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md transition flex items-center gap-0.5 border border-emerald-200/60 shrink-0"
               title="العودة إلى اليوم"
             >
-              <RotateCcw size={11} />
+              <RotateCcw size={10} />
               <span>اليوم</span>
             </button>
           )}
 
           <button
             onClick={onPrevMonth}
-            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-100 active:bg-neutral-200/80 text-neutral-700 transition active:scale-90"
+            className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full hover:bg-neutral-100 active:bg-neutral-200/80 text-neutral-700 transition active:scale-90 shrink-0"
             title="الشهر السابق"
             aria-label="الشهر السابق"
           >
-            <ChevronLeft size={22} className="stroke-[2.2]" />
+            <ChevronLeft size={20} className="stroke-[2.2]" />
           </button>
         </div>
       </div>
