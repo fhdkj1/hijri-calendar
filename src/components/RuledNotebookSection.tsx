@@ -16,6 +16,8 @@ interface RuledNotebookSectionProps {
   onDeleteNote: (id: string) => void;
   useArabicDigits: boolean;
   showIslamicEvents?: boolean;
+  selectedDay?: number;
+  onSelectDay?: (day: number) => void;
 }
 
 export const RuledNotebookSection = ({
@@ -26,6 +28,8 @@ export const RuledNotebookSection = ({
   onDeleteNote,
   useArabicDigits,
   showIslamicEvents = true,
+  selectedDay,
+  onSelectDay,
 }: RuledNotebookSectionProps) => {
   const [activeSegment, setActiveSegment] = useState<'month' | 'day'>('month');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -128,52 +132,94 @@ export const RuledNotebookSection = ({
               <>
                 {/* Official Islamic Holidays matching screenshot */}
                 {showIslamicEvents &&
-                  monthEvents.map((item, idx) => (
-                    <div
-                      key={`${item.event.id}-${idx}`}
-                      className="h-[42px] flex items-center justify-end gap-2.5 text-neutral-900 text-sm pr-1 group hover:bg-neutral-50/50 transition-colors"
-                    >
-                      <span className="font-semibold text-neutral-800 text-[13px] sm:text-sm">
-                        {item.event.titleAr}
-                      </span>
-                      {item.event.icon === 'kaaba' && (
-                        <KaabaIcon size={20} className="drop-shadow-2xs" />
-                      )}
-                      {item.event.icon === 'balloon' && (
-                        <BalloonIcon size={20} className="drop-shadow-2xs" />
-                      )}
-                      {item.event.icon !== 'kaaba' && item.event.icon !== 'balloon' && (
-                        <Sparkles size={16} className="text-amber-600" />
-                      )}
-                    </div>
-                  ))}
+                  monthEvents.map((item, idx) => {
+                    const isSelected = selectedDay === item.day;
+                    return (
+                      <div
+                        key={`${item.event.id}-${idx}`}
+                        onClick={() => onSelectDay?.(item.day)}
+                        className={`h-[42px] flex items-center justify-between text-sm px-2.5 rounded-lg cursor-pointer transition-colors ${
+                          isSelected
+                            ? 'bg-[#dce868] text-neutral-950 font-bold shadow-2xs'
+                            : 'text-neutral-900 hover:bg-neutral-100/60'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                          <span
+                            className={`text-xs font-mono font-bold w-5 shrink-0 text-right ${
+                              isSelected ? 'text-neutral-950' : 'text-neutral-500'
+                            }`}
+                          >
+                            {num(item.day)}
+                          </span>
+                          <span className="truncate font-semibold text-[13px] sm:text-sm">
+                            {item.event.titleAr}
+                          </span>
+                          <div className="shrink-0 flex items-center">
+                            {item.event.icon === 'kaaba' && (
+                              <KaabaIcon size={18} className="drop-shadow-2xs" />
+                            )}
+                            {item.event.icon === 'balloon' && (
+                              <BalloonIcon size={18} className="drop-shadow-2xs" />
+                            )}
+                            {item.event.icon !== 'kaaba' && item.event.icon !== 'balloon' && (
+                              <Sparkles
+                                size={16}
+                                className={isSelected ? 'text-amber-900' : 'text-amber-600'}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
 
                 {/* User Notes for this Month with Selected Icons */}
-                {monthUserNotes.map((note) => (
+                {monthUserNotes.map((note) => {
+                  const isSelected = selectedDay === note.hijriDay;
+                  return (
                     <div
                       key={note.id}
-                      className="h-[42px] flex items-center justify-between text-neutral-800 text-sm px-1 hover:bg-amber-50/40 rounded-lg transition-colors group"
+                      onClick={() => onSelectDay?.(note.hijriDay)}
+                      className={`h-[42px] flex items-center justify-between text-sm px-2.5 rounded-lg cursor-pointer transition-colors group ${
+                        isSelected
+                          ? 'bg-[#dce868] text-neutral-950 font-bold shadow-2xs'
+                          : 'text-neutral-800 hover:bg-neutral-100/60'
+                      }`}
                     >
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <span
+                          className={`text-xs font-mono font-bold w-5 shrink-0 text-right ${
+                            isSelected ? 'text-neutral-950' : 'text-neutral-500'
+                          }`}
+                        >
+                          {num(note.hijriDay)}
+                        </span>
+                        <span className="truncate font-medium text-xs sm:text-sm">
+                          {note.title}
+                        </span>
+                        <div className="shrink-0 flex items-center">
+                          <EventIconRenderer icon={note.icon || 'pin'} size={15} />
+                        </div>
+                      </div>
                       <button
-                        onClick={() => onDeleteNote(note.id)}
-                        className="text-neutral-300 hover:text-red-600 transition p-1"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteNote(note.id);
+                        }}
+                        className={`p-1 transition shrink-0 ${
+                          isSelected
+                            ? 'text-neutral-700 hover:text-red-700'
+                            : 'text-neutral-300 hover:text-red-600'
+                        }`}
                         title="حذف"
                       >
                         <Trash2 size={13} />
                       </button>
-                      <div className="flex items-center gap-2">
-                        <span className="text-neutral-800 font-medium text-xs sm:text-sm">
-                          {note.title}
-                        </span>
-                        <span className="text-[10px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded-full font-mono font-bold">
-                          {num(note.hijriDay)}
-                        </span>
-                        <div className="w-6 h-6 rounded-full bg-neutral-100 flex items-center justify-center shrink-0">
-                          <EventIconRenderer icon={note.icon || 'pin'} size={14} />
-                        </div>
-                      </div>
                     </div>
-                  ))}
+                  );
+                })}
               </>
             )}
           </div>

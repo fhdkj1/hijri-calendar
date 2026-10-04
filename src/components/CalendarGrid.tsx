@@ -4,6 +4,7 @@ import {
   toArabicNumerals,
 } from '../utils/hijriCalendar';
 import { EventIconRenderer } from './EventIcons';
+import { AnimatedRedCircle } from './CalendarIcons';
 
 interface CalendarGridProps {
   days: HijriDateInfo[];
@@ -109,14 +110,17 @@ export const CalendarGrid = ({
               onClick={() => onSelectDay(dayInfo.day)}
               className={`relative min-h-[48px] sm:min-h-[52px] p-1 sm:p-1.5 border-b border-r border-neutral-200/60 flex flex-col justify-between cursor-pointer transition-all duration-150 active:scale-95 ${
                 isSelected
-                  ? 'bg-[#d8cebf] shadow-inner text-neutral-900'
+                  ? 'bg-amber-50/40 text-neutral-900 font-bold'
                   : isFriday
                   ? 'bg-amber-50/20 hover:bg-neutral-50'
                   : 'bg-white hover:bg-neutral-50'
               }`}
             >
+              {/* Animated Red Marker Circle when selected */}
+              {isSelected && <AnimatedRedCircle key={`red-circle-${dayInfo.day}`} />}
+
               {/* Top Row: Hijri Day Number + First Event Icon */}
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between relative z-10">
                 {/* Hijri day number in rich maroon font */}
                 <span
                   className={`text-base sm:text-lg font-bold leading-none ${

@@ -56,6 +56,26 @@ export const BalloonIcon: React.FC<{ className?: string; size?: number }> = ({
   </svg>
 );
 
+// Animated Red Marker Circle for selected date matching reference screenshot
+export const AnimatedRedCircle: React.FC<{ className?: string }> = ({
+  className = '',
+}) => (
+  <svg
+    viewBox="0 0 54 54"
+    className={`absolute inset-0 w-full h-full pointer-events-none z-20 overflow-visible p-0.5 ${className}`}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M 27,6 C 39.5,5.5 48.5,14 48,27 C 47.5,39.5 39,48.5 27,48 C 14.5,47.5 5.5,38.5 6,27 C 6.5,14.5 15,6.5 27,6.2"
+      stroke="#dc2626"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      className="animate-circle-draw drop-shadow-xs"
+    />
+  </svg>
+);
+
 // Bottom bar icons matching the 4 icons in the screenshot:
 // 1. Crescent Moon (brown/gold shaded crescent)
 export const CrescentTabIcon: React.FC<{ className?: string; active?: boolean }> = ({

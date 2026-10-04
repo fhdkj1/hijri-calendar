@@ -433,6 +433,8 @@ export function App() {
               onDeleteNote={handleDeleteNote}
               useArabicDigits={useArabicDigits}
               showIslamicEvents={showIslamicEvents}
+              selectedDay={selectedDay}
+              onSelectDay={(day) => setSelectedDay(day)}
             />
           </div>
         )}

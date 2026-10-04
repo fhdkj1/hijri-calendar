@@ -61,3 +61,30 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* Animated Red Marker Circle for Selected Day */
+@keyframes circleDraw {
+  0% {
+    stroke-dashoffset: 160;
+    transform: scale(0.75) rotate(-12deg);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  75% {
+    transform: scale(1.08) rotate(2deg);
+  }
+  100% {
+    stroke-dashoffset: 0;
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-circle-draw {
+  stroke-dasharray: 160;
+  stroke-dashoffset: 0;
+  animation: circleDraw 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: center;
+}
