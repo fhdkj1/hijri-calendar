@@ -1,11 +1,5 @@
 import { useState, useMemo } from 'react';
-import {
-  Search,
-  X,
-  ChevronDown,
-  CalendarDays,
-  Sparkles,
-} from 'lucide-react';
+import { Search, X, Sparkles } from 'lucide-react';
 import {
   HIJRI_MONTHS_AR,
   toArabicNumerals,
@@ -52,11 +46,8 @@ export const CalendarHeader = ({
   userNotes = [],
   deletedIslamicEventIds = [],
 }: CalendarHeaderProps) => {
-  const [showPicker, setShowPicker] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [tempYear, setTempYear] = useState(hijriYear);
-  const [tempMonth, setTempMonth] = useState(hijriMonth);
 
   const num = (val: number | string) =>
     useArabicDigits ? toArabicNumerals(val) : String(val);
@@ -130,47 +121,28 @@ export const CalendarHeader = ({
     });
   }, [searchQuery, searchableEvents]);
 
-  const handleApplyJump = () => {
-    onJumpToDate(tempYear, tempMonth, 1);
-    setShowPicker(false);
-  };
-
   return (
     <div className="bg-white/95 backdrop-blur-md border-b border-neutral-150/80 px-3.5 pt-3 pb-2.5 select-none z-20">
       {/* Header matching user uploaded screenshot: Title on right, Search & Today badge on left */}
       <div className="flex items-center justify-between">
-        {/* Right side (start in RTL): Month and Year Title */}
-        <button
-          onClick={() => {
-            setTempYear(hijriYear);
-            setTempMonth(hijriMonth);
-            setShowPicker(true);
-          }}
-          className="group flex flex-col items-start text-right hover:opacity-85 transition-opacity"
-          title="انقر لتغيير الشهر أو السنة"
-        >
-          <div className="flex items-center gap-1.5">
-            <span
-              className="text-xl sm:text-2xl font-black tracking-tight text-neutral-900 group-hover:text-[#841c1c] transition-colors leading-tight whitespace-nowrap"
-              style={{
-                fontFamily:
-                  '"Cairo", "Traditional Arabic", -apple-system, sans-serif',
-              }}
-            >
-              {formattedHeader}
-            </span>
-            <ChevronDown
-              size={16}
-              className="text-neutral-400 group-hover:text-neutral-700 transition-transform group-hover:translate-y-0.5"
-            />
-          </div>
+        {/* Right side (start in RTL): Month and Year Title (clean static display) */}
+        <div className="flex flex-col items-start text-right">
+          <span
+            className="text-xl sm:text-2xl font-black tracking-tight text-neutral-900 leading-tight whitespace-nowrap"
+            style={{
+              fontFamily:
+                '"Cairo", "Traditional Arabic", -apple-system, sans-serif',
+            }}
+          >
+            {formattedHeader}
+          </span>
 
           {gregorianMonthYear && (
             <span className="text-[11px] sm:text-xs font-semibold text-neutral-500 font-sans tracking-tight mt-0.5 whitespace-nowrap">
               {gregorianMonthYear}
             </span>
           )}
-        </button>
+        </div>
 
         {/* Left side (end in RTL): Search Icon & Today [4] Badge Icon */}
         <div className="flex items-center gap-2.5 sm:gap-3">
@@ -300,107 +272,6 @@ export const CalendarHeader = ({
                   ))}
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Month & Year Picker Sheet / Modal */}
-      {showPicker && (
-        <div className="fixed inset-0 bg-neutral-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl p-5 w-full max-w-sm text-right border border-neutral-100 max-h-[85vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-neutral-150">
-              <button
-                onClick={() => {
-                  onJumpToDate(1435, 12, 19);
-                  setShowPicker(false);
-                }}
-                className="flex items-center gap-1 text-xs bg-amber-50 hover:bg-amber-100 text-amber-900 font-semibold px-2.5 py-1 rounded-full border border-amber-200 transition"
-              >
-                <Sparkles size={12} className="text-amber-600" />
-                <span>تاريخ الصورة (١٤٣٥-١٢)</span>
-              </button>
-              <h3 className="font-bold text-neutral-900 text-base">الانتقال إلى تاريخ</h3>
-            </div>
-
-            {/* Year Input */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-neutral-600 mb-1.5">
-                  السنة الهجرية
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min={1300}
-                    max={1500}
-                    value={tempYear}
-                    onChange={(e) => setTempYear(parseInt(e.target.value, 10) || hijriYear)}
-                    className="w-full text-center border border-neutral-200 bg-neutral-50 rounded-xl p-2.5 font-mono text-base font-bold text-neutral-900 focus:ring-2 focus:ring-[#841c1c] focus:bg-white focus:outline-none transition"
-                  />
-                  <span className="text-sm font-bold text-neutral-500">هـ</span>
-                </div>
-              </div>
-
-              {/* Month Selection Grid */}
-              <div>
-                <label className="block text-xs font-semibold text-neutral-600 mb-1.5">
-                  الشهر الهجري
-                </label>
-                <div className="grid grid-cols-3 gap-1.5 p-1 bg-neutral-50 rounded-2xl border border-neutral-150">
-                  {HIJRI_MONTHS_AR.map((mName, idx) => {
-                    const mNum = idx + 1;
-                    const isSelected = tempMonth === mNum;
-                    return (
-                      <button
-                        key={mNum}
-                        type="button"
-                        onClick={() => setTempMonth(mNum)}
-                        className={`text-xs py-2 px-1 rounded-xl text-center font-medium transition-all ${
-                          isSelected
-                            ? 'bg-[#841c1c] text-white font-bold shadow-xs'
-                            : 'hover:bg-white text-neutral-700'
-                        }`}
-                      >
-                        <div>{mName}</div>
-                        <div className="text-[10px] opacity-75 font-mono">{num(mNum)}</div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-between pt-4 border-t border-neutral-150">
-                <button
-                  type="button"
-                  onClick={() => {
-                    onResetToToday();
-                    setShowPicker(false);
-                  }}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-neutral-600 hover:text-neutral-900"
-                >
-                  <CalendarDays size={14} />
-                  <span>تاريخ اليوم</span>
-                </button>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowPicker(false)}
-                    className="px-4 py-2 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 rounded-xl transition"
-                  >
-                    إلغاء
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleApplyJump}
-                    className="px-5 py-2 text-xs bg-[#841c1c] text-white rounded-xl font-bold hover:bg-[#6e1414] shadow-sm transition active:scale-95"
-                  >
-                    تطبيق
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
