@@ -382,6 +382,22 @@ export function App() {
     }
   };
 
+  const handleUpdateNote = async (updatedNote: UserNote) => {
+    // Optimistic local update
+    setUserNotes((prev) =>
+      prev.map((n) => (n.id === updatedNote.id ? updatedNote : n))
+    );
+
+    // Cloud Firestore sync if logged in
+    if (user) {
+      try {
+        await saveNoteToCloud(user.uid, updatedNote);
+      } catch (err) {
+        console.error('Failed to update note in cloud:', err);
+      }
+    }
+  };
+
   const handleDeleteNote = async (id: string) => {
     // Optimistic local update
     setUserNotes((prev) => prev.filter((n) => n.id !== id));
@@ -456,6 +472,7 @@ export function App() {
               monthEvents={monthEvents}
               userNotes={userNotes}
               onAddNote={handleAddNote}
+              onUpdateNote={handleUpdateNote}
               onDeleteNote={handleDeleteNote}
               useArabicDigits={useArabicDigits}
               showIslamicEvents={showIslamicEvents}
