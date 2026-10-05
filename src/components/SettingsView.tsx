@@ -203,14 +203,14 @@ export const SettingsView = ({
                 تطبيق ويب متقدم (PWA)
               </span>
               <div className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
-                <span>تثبيت التقويم على الشاشة الرئيسية</span>
+                <span>تثبيت تطبيق مِيعاد على الشاشة الرئيسية</span>
                 <Smartphone size={14} className="text-[#841c1c]" />
               </div>
             </div>
 
             <div className="space-y-2.5">
               <p className="text-[11px] text-neutral-600 leading-relaxed">
-                يمكنك تثبيت التقويم على هاتفك لفتحه بضغطة واحدة من الشاشة الرئيسية كأي تطبيق أصلي، بملء الشاشة وبسرعة فائقة.
+                يمكنك تثبيت تطبيق مِيعاد (MIAD) على هاتفك لفتحه بضغطة واحدة من الشاشة الرئيسية كأي تطبيق أصلي، بملء الشاشة وبسرعة فائقة.
               </p>
 
               {deferredPrompt ? (
@@ -219,7 +219,7 @@ export const SettingsView = ({
                   className="w-full flex items-center justify-center gap-2 bg-[#841c1c] hover:bg-[#6e1414] active:scale-98 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-xs transition"
                 >
                   <Download size={14} />
-                  <span>تثبيت التطبيق الآن على جهازك</span>
+                  <span>تثبيت تطبيق مِيعاد الآن على جهازك</span>
                 </button>
               ) : (
                 <div className="bg-neutral-50 p-2.5 rounded-xl border border-neutral-200/70 text-[11px] text-neutral-700 space-y-1">

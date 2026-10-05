@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hijri-calendar-v1';
+const CACHE_NAME = 'miad-pwa-v2';
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
@@ -47,6 +47,20 @@ self.addEventListener('fetch', (event) => {
     url.hostname.includes('googleapis.com') ||
     url.hostname.includes('identitytoolkit')
   ) {
+    return;
+  }
+
+  // Network-first for manifest.json so PWA name updates immediately
+  if (url.pathname === '/manifest.json') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
     return;
   }
 
