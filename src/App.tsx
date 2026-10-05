@@ -6,7 +6,6 @@ import {
   toArabicNumerals,
   type UserNote,
 } from './utils/hijriCalendar';
-import { generate1500TestEvents } from './utils/generateTestEvents';
 import {
   onAuthChanged,
   subscribeToUserNotes,
@@ -85,40 +84,25 @@ export function App() {
     setDeletedIslamicEventIds([]);
   };
 
-  // User custom notes / events - populated with 1,500 test events for system performance benchmark
+  // User custom notes / events (cleared of test benchmark events)
   const [userNotes, setUserNotes] = useState<UserNote[]>(() => {
-    const isPerfInitialized = localStorage.getItem('hijri_perf_1500_initialized');
+    localStorage.removeItem('hijri_perf_1500_initialized');
     const saved = localStorage.getItem('hijri_user_notes');
-    if (saved && isPerfInitialized) {
+    if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length >= 1000) {
-          return parsed;
+        if (Array.isArray(parsed)) {
+          // Remove all test benchmark events (preserving any custom user notes)
+          const cleanNotes = parsed.filter((n) => !n.id?.startsWith('perf-test-'));
+          localStorage.setItem('hijri_user_notes', JSON.stringify(cleanNotes));
+          return cleanNotes;
         }
       } catch {
         // fallback
       }
     }
-
-    // Auto-generate 1,500 test events across all dates and occasions
-    const testEvents = generate1500TestEvents();
-    localStorage.setItem('hijri_perf_1500_initialized', 'true');
-    localStorage.setItem('hijri_user_notes', JSON.stringify(testEvents));
-    return testEvents;
+    return [];
   });
-
-  const handleLoad1500TestEvents = () => {
-    const testEvents = generate1500TestEvents();
-    setUserNotes(testEvents);
-    localStorage.setItem('hijri_perf_1500_initialized', 'true');
-    localStorage.setItem('hijri_user_notes', JSON.stringify(testEvents));
-  };
-
-  const handleClearAllNotes = () => {
-    setUserNotes([]);
-    localStorage.removeItem('hijri_perf_1500_initialized');
-    localStorage.setItem('hijri_user_notes', JSON.stringify([]));
-  };
 
   // Selected date: loaded from localStorage so refresh keeps the user on the exact same date
   const [currentYear, setCurrentYear] = useState<number>(() => {
@@ -196,7 +180,8 @@ export function App() {
           const localSaved = localStorage.getItem('hijri_user_notes');
           if (localSaved) {
             const parsed: UserNote[] = JSON.parse(localSaved);
-            await syncLocalNotesToCloud(currentUser.uid, parsed);
+            const clean = parsed.filter((n) => !n.id?.startsWith('perf-test-'));
+            await syncLocalNotesToCloud(currentUser.uid, clean);
           }
         } catch (e) {
           console.error('Error syncing local notes to cloud:', e);
@@ -214,7 +199,16 @@ export function App() {
     const unsubscribe = subscribeToUserNotes(
       user.uid,
       (cloudNotes) => {
-        setUserNotes(cloudNotes);
+        const cleanNotes = cloudNotes.filter((n) => !n.id.startsWith('perf-test-'));
+        setUserNotes(cleanNotes);
+
+        // Asynchronously clean up any test notes from Cloud Firestore
+        const testNotesInCloud = cloudNotes.filter((n) => n.id.startsWith('perf-test-'));
+        if (testNotesInCloud.length > 0) {
+          testNotesInCloud.forEach((t) => {
+            deleteNoteFromCloud(user.uid, t.id).catch(() => {});
+          });
+        }
       },
       (err) => {
         console.error('Cloud notes sync error:', err);
@@ -523,8 +517,6 @@ export function App() {
             onJumpToScreenshotDate={() => handleJumpToDate(1435, 12, 19)}
             user={user}
             notesCount={userNotes.length}
-            onLoad1500Events={handleLoad1500TestEvents}
-            onClearAllNotes={handleClearAllNotes}
           />
         )}
 
