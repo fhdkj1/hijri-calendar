@@ -158,3 +158,32 @@ export const MoreTabIcon: React.FC<{ className?: string; active?: boolean }> = (
     <circle cx="18" cy="12" r="1.5" fill={active ? '#8c6d46' : '#9ca3af'} />
   </svg>
 );
+
+// 5. Birthday Cake Tab Icon for Age Calculator
+export const CakeTabIcon: React.FC<{ className?: string; active?: boolean }> = ({
+  className = '',
+  active = false,
+}) => (
+  <svg
+    width="26"
+    height="26"
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    stroke={active ? '#8c6d46' : '#9ca3af'}
+    strokeWidth="1.6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8" />
+    <path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1" />
+    <path d="M2 21h20" />
+    <path d="M7 8v3" />
+    <path d="M12 8v3" />
+    <path d="M17 8v3" />
+    <path d="M7 4h.01" />
+    <path d="M12 4h.01" />
+    <path d="M17 4h.01" />
+  </svg>
+);
+
