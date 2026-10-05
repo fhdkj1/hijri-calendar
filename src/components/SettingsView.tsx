@@ -405,10 +405,10 @@ export const SettingsView = ({
         {/* About Card */}
         <div className="p-3.5 bg-neutral-100/70 rounded-2xl text-[11px] text-neutral-600 leading-relaxed border border-neutral-200/60">
           <div className="font-bold text-neutral-900 mb-1 flex items-center gap-1 justify-end">
-            <span>عن تقويم أم القرى</span>
+            <span>MIAD — مِيعاد</span>
             <HelpCircle size={13} />
           </div>
-          تقويم أم القرى هو التقويم الإسلامي الرسمي في المملكة العربية السعودية. يعتمد على حساب ولادة الهلال فلكياً وغروب الشمس في مكة المكرمة بدقة عالية.
+          تطبيق مِيعاد (MIAD) للتقويم الهجري والميلادي وحفظ المناسبات والأحداث وفق حسابات تقويم أم القرى بدقة عالية.
         </div>
       </div>
     </div>
