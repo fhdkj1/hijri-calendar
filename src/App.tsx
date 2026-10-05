@@ -122,15 +122,30 @@ export function App() {
   // Selected date: loaded from localStorage so refresh keeps the user on the exact same date
   const [currentYear, setCurrentYear] = useState<number>(() => {
     const saved = localStorage.getItem('hijri_selected_year');
-    return saved !== null ? parseInt(saved, 10) : 1435;
+    if (saved !== null) {
+      const p = parseInt(saved, 10);
+      if (!isNaN(p)) return p;
+    }
+    const initH = getHijriFromGregorian(new Date());
+    return initH.year;
   });
   const [currentMonth, setCurrentMonth] = useState<number>(() => {
     const saved = localStorage.getItem('hijri_selected_month');
-    return saved !== null ? parseInt(saved, 10) : 12;
+    if (saved !== null) {
+      const p = parseInt(saved, 10);
+      if (!isNaN(p)) return p;
+    }
+    const initH = getHijriFromGregorian(new Date());
+    return initH.month;
   });
   const [selectedDay, setSelectedDay] = useState<number>(() => {
     const saved = localStorage.getItem('hijri_selected_day');
-    return saved !== null ? parseInt(saved, 10) : 19;
+    if (saved !== null) {
+      const p = parseInt(saved, 10);
+      if (!isNaN(p)) return p;
+    }
+    const initH = getHijriFromGregorian(new Date());
+    return initH.day;
   });
 
   // Today's actual date

@@ -4,6 +4,7 @@ import {
   type HijriDateInfo,
   type UserNote,
   toArabicNumerals,
+  findHijriMonthStart,
 } from '../utils/hijriCalendar';
 import { KaabaIcon, BalloonIcon } from './CalendarIcons';
 import { EventIconRenderer, EventIconPicker } from './EventIcons';
@@ -35,7 +36,7 @@ export const RuledNotebookSection = ({
   selectedDay,
   onSelectDay,
   calendarDays = [],
-  todayHijri,
+  todayHijri: _todayHijri,
   currentYear,
   currentMonth,
 }: RuledNotebookSectionProps) => {
@@ -59,30 +60,36 @@ export const RuledNotebookSection = ({
 
   // Helper to determine timing, remaining days countdown, and past status for an event
   const getEventTiming = (day: number) => {
-    let diffDays: number;
+    let diffDays = 0;
 
     const dayInfo = calendarDays?.find((d) => d.day === day);
+    let target: Date;
+
     if (dayInfo?.gregorianDate) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const target = new Date(dayInfo.gregorianDate);
-      target.setHours(0, 0, 0, 0);
-
-      const realDiff = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-      // Realistic range for real-world countdown (within ~400 days)
-      if (Math.abs(realDiff) < 400) {
-        diffDays = realDiff;
-      } else {
-        // Historical view fallback (e.g. 1435H where screenshot day 4 was today)
-        const refDay = currentYear === 1435 && currentMonth === 12 ? 4 : (todayHijri?.day || 1);
-        diffDays = day - refDay;
-      }
+      target = new Date(dayInfo.gregorianDate);
+    } else if (currentYear && currentMonth) {
+      const mStart = findHijriMonthStart(currentYear, currentMonth);
+      target = new Date(mStart.getTime() + (day - 1) * 86400000);
     } else {
-      const refDay = currentYear === 1435 && currentMonth === 12 ? 4 : (todayHijri?.day || 1);
-      diffDays = day - refDay;
+      target = new Date();
     }
+    target.setHours(0, 0, 0, 0);
+
+    const realToday = new Date();
+    realToday.setHours(0, 0, 0, 0);
+
+    let refDate: Date;
+    if (currentYear && currentYear <= 1438) {
+      // Historical test mode (e.g. 1435/12 where day 4 was Today / 2014-09-28)
+      const s1435 = findHijriMonthStart(1435, 12);
+      refDate = new Date(s1435.getTime() + (4 - 1) * 86400000);
+      refDate.setHours(0, 0, 0, 0);
+    } else {
+      refDate = realToday;
+    }
+
+    const diffMs = target.getTime() - refDate.getTime();
+    diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
     const isPast = diffDays < 0;
     const isToday = diffDays === 0;
