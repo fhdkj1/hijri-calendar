@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeftRight, Calendar, Sparkles, Cake } from 'lucide-react';
+import { ArrowLeftRight, Calendar, Sparkles } from 'lucide-react';
 import {
   HIJRI_MONTHS_AR,
   findHijriMonthStart,
@@ -15,14 +15,12 @@ interface DateConverterViewProps {
   adjustment: number;
   useArabicDigits: boolean;
   onSelectHijriDate: (year: number, month: number, day: number) => void;
-  onOpenAgeCalculator?: () => void;
 }
 
 export const DateConverterView = ({
   adjustment,
   useArabicDigits,
   onSelectHijriDate,
-  onOpenAgeCalculator,
 }: DateConverterViewProps) => {
   const [mode, setMode] = useState<'g2h' | 'h2g'>('g2h');
 
@@ -65,24 +63,6 @@ export const DateConverterView = ({
           <ArrowLeftRight size={17} className="text-[#841c1c]" />
         </h2>
       </div>
-
-      {/* Quick link to Age Calculator */}
-      {onOpenAgeCalculator && (
-        <button
-          type="button"
-          onClick={onOpenAgeCalculator}
-          className="mb-3 w-full p-2.5 bg-gradient-to-r from-rose-50 via-pink-50 to-amber-50 hover:from-rose-100/70 hover:to-amber-100/70 border border-rose-200/80 rounded-2xl flex items-center justify-between transition cursor-pointer text-xs group"
-        >
-          <span className="font-bold text-[#841c1c] flex items-center gap-1.5">
-            <Cake size={14} className="text-[#841c1c]" />
-            <span>حاسبة العمر الذكية</span>
-          </span>
-          <span className="text-[11px] text-neutral-600 flex items-center gap-1 group-hover:text-neutral-900 font-medium">
-            <span>احسب عمرك بالتفصيل لليوم</span>
-            <span className="font-bold text-[#841c1c]">←</span>
-          </span>
-        </button>
-      )}
 
       {/* Segmented Control */}
       <div className="flex bg-neutral-200/70 p-1 rounded-2xl mb-4">

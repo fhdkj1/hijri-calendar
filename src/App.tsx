@@ -20,7 +20,6 @@ import { CalendarGrid } from './components/CalendarGrid';
 import { RuledNotebookSection } from './components/RuledNotebookSection';
 import { BottomNavBar, type TabType } from './components/BottomNavBar';
 import { DateConverterView } from './components/DateConverterView';
-import { AgeCalculatorView } from './components/AgeCalculatorView';
 import { EventsListView } from './components/EventsListView';
 import { SettingsView } from './components/SettingsView';
 
@@ -28,6 +27,7 @@ export function App() {
   // Navigation tabs
   const [activeTab, setActiveTab] = useState<TabType>(() => {
     const saved = localStorage.getItem('hijri_active_tab') as TabType;
+    if (saved === ('age' as any)) return 'calendar';
     return saved || 'calendar';
   });
 
@@ -490,16 +490,6 @@ export function App() {
         {/* Date Converter View */}
         {activeTab === 'converter' && (
           <DateConverterView
-            adjustment={adjustment}
-            useArabicDigits={useArabicDigits}
-            onSelectHijriDate={handleJumpToDate}
-            onOpenAgeCalculator={() => setActiveTab('age')}
-          />
-        )}
-
-        {/* Age Calculator View */}
-        {activeTab === 'age' && (
-          <AgeCalculatorView
             adjustment={adjustment}
             useArabicDigits={useArabicDigits}
             onSelectHijriDate={handleJumpToDate}
