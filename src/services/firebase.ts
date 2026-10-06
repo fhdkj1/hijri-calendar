@@ -21,24 +21,14 @@ import {
 } from 'firebase/firestore';
 import type { UserNote } from '../utils/hijriCalendar';
 
-// Determine best authDomain (same-origin on web.app eliminates third-party cookie blocks)
-const getAuthDomain = () => {
-  if (
-    typeof window !== 'undefined' &&
-    (window.location.hostname.endsWith('.web.app') || window.location.hostname.endsWith('.firebaseapp.com'))
-  ) {
-    return window.location.hostname;
-  }
-  return 'workout-sync-2026.firebaseapp.com';
-};
-
 // Firebase configuration for Hijri Calendar Sync
+// authDomain must match the Authorized Redirect URI registered in Google Cloud Console OAuth Client
 const firebaseConfig = {
   projectId: "workout-sync-2026",
   appId: "1:127182901874:web:04eb4a47fbc6f112d0a8eb",
   storageBucket: "workout-sync-2026.firebasestorage.app",
   apiKey: "AIzaSyC0Kq-4Fmnppbo5R13TJAEFf0kQ-I8wyGk",
-  authDomain: getAuthDomain(),
+  authDomain: "workout-sync-2026.firebaseapp.com",
   messagingSenderId: "127182901874",
 };
 
