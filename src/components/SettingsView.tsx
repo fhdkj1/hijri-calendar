@@ -215,14 +215,14 @@ export const SettingsView = ({
                 تطبيق ويب متقدم (PWA)
               </span>
               <div className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
-                <span>تثبيت تطبيق مِيعاد على الشاشة الرئيسية</span>
+                <span>تثبيت تطبيق ميقات على الشاشة الرئيسية</span>
                 <Smartphone size={14} className="text-[#841c1c]" />
               </div>
             </div>
 
             <div className="space-y-2.5">
               <p className="text-[11px] text-neutral-600 leading-relaxed">
-                يمكنك تثبيت تطبيق مِيعاد (MIAD) على هاتفك لفتحه بضغطة واحدة من الشاشة الرئيسية كأي تطبيق أصلي، بملء الشاشة وبسرعة فائقة.
+                يمكنك تثبيت تطبيق ميقات (MIQAT) على هاتفك لفتحه بضغطة واحدة من الشاشة الرئيسية كأي تطبيق أصلي، بملء الشاشة وبسرعة فائقة.
               </p>
 
               {deferredPrompt ? (
@@ -231,7 +231,7 @@ export const SettingsView = ({
                   className="w-full flex items-center justify-center gap-2 bg-[#841c1c] hover:bg-[#6e1414] active:scale-98 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-xs transition"
                 >
                   <Download size={14} />
-                  <span>تثبيت تطبيق مِيعاد الآن على جهازك</span>
+                  <span>تثبيت تطبيق ميقات الآن على جهازك</span>
                 </button>
               ) : (
                 <div className="bg-neutral-50 p-2.5 rounded-xl border border-neutral-200/70 text-[11px] text-neutral-700 space-y-1">
@@ -336,10 +336,10 @@ export const SettingsView = ({
         {/* About Card */}
         <div className="p-3.5 bg-neutral-100/70 rounded-2xl text-[11px] text-neutral-600 leading-relaxed border border-neutral-200/60">
           <div className="font-bold text-neutral-900 mb-1 flex items-center gap-1 justify-end">
-            <span>MIAD — مِيعاد</span>
+            <span>MIQAT — ميقات</span>
             <HelpCircle size={13} />
           </div>
-          تطبيق مِيعاد (MIAD) للتقويم الهجري والميلادي وحفظ المناسبات والأحداث وفق حسابات تقويم أم القرى بدقة عالية.
+          تطبيق ميقات (MIQAT) للتقويم الهجري والميلادي وحفظ المناسبات والأحداث وفق حسابات تقويم أم القرى بدقة عالية.
         </div>
       </div>
     </div>
