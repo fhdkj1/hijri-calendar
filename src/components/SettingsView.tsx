@@ -68,15 +68,31 @@ export const SettingsView = ({
     setDeferredPrompt(null);
   };
 
+  const [authError, setAuthError] = useState<string | null>(null);
+
   const num = (val: number | string) =>
     useArabicDigits ? toArabicNumerals(val) : String(val);
 
   const handleSignIn = async () => {
     try {
+      setAuthError(null);
       setIsSigningIn(true);
       await signInWithGoogle();
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error('Sign-in error:', err);
+      let message = 'تعذر تسجيل الدخول بحساب Google. يرجى المحاولة مرة أخرى.';
+      if (err?.code === 'auth/unauthorized-domain') {
+        message = 'النطاق الحالي لم يكن مصرحاً به، وتم تحديثه وتصريحه الآن. أعد المحاولة بعد تحديث الصفحة.';
+      } else if (err?.code === 'auth/popup-blocked') {
+        message = 'المتصفح حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة أو فتح الرابط في Safari / Chrome مباشرة.';
+      } else if (err?.code === 'auth/network-request-failed') {
+        message = 'تعذر الاتصال بالشبكة. يرجى التحقق من اتصال الإنترنت.';
+      } else if (err?.code === 'auth/cancelled-popup-request') {
+        message = 'تم إلغاء عملية تسجيل الدخول.';
+      } else if (err?.message) {
+        message = `خطأ: ${err.message}`;
+      }
+      setAuthError(message);
     } finally {
       setIsSigningIn(false);
     }
@@ -163,6 +179,12 @@ export const SettingsView = ({
               <p className="text-[11px] text-neutral-600 leading-relaxed">
                 سجّل الدخول بحساب Google لربط ومزامنة جميع مناسباتك ومواعيدك تلقائياً بين هاتفين أو أكثر في نفس الوقت.
               </p>
+
+              {authError && (
+                <div className="text-[11.5px] text-red-700 bg-red-50 p-2.5 rounded-xl border border-red-200/90 leading-relaxed font-semibold animate-in fade-in duration-150">
+                  ⚠️ {authError}
+                </div>
+              )}
 
               <button
                 onClick={handleSignIn}

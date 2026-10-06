@@ -21,13 +21,24 @@ import {
 } from 'firebase/firestore';
 import type { UserNote } from '../utils/hijriCalendar';
 
+// Determine best authDomain (same-origin on web.app eliminates third-party cookie blocks)
+const getAuthDomain = () => {
+  if (
+    typeof window !== 'undefined' &&
+    (window.location.hostname.endsWith('.web.app') || window.location.hostname.endsWith('.firebaseapp.com'))
+  ) {
+    return window.location.hostname;
+  }
+  return 'workout-sync-2026.firebaseapp.com';
+};
+
 // Firebase configuration for Hijri Calendar Sync
 const firebaseConfig = {
   projectId: "workout-sync-2026",
   appId: "1:127182901874:web:04eb4a47fbc6f112d0a8eb",
   storageBucket: "workout-sync-2026.firebasestorage.app",
   apiKey: "AIzaSyC0Kq-4Fmnppbo5R13TJAEFf0kQ-I8wyGk",
-  authDomain: "workout-sync-2026.firebaseapp.com",
+  authDomain: getAuthDomain(),
   messagingSenderId: "127182901874",
 };
 
@@ -47,12 +58,22 @@ googleProvider.setCustomParameters({
  * Uses popup by default, with automatic redirect fallback for mobile browsers that block popups.
  */
 export async function signInWithGoogle(): Promise<User | null> {
+  const isMobileOrStandalone =
+    typeof window !== 'undefined' &&
+    (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as any).standalone === true);
+
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
   } catch (error: any) {
     console.warn('Popup sign in failed, trying redirect:', error);
-    if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+    if (
+      error.code === 'auth/popup-blocked' ||
+      error.code === 'auth/cancelled-popup-request' ||
+      isMobileOrStandalone
+    ) {
       await signInWithRedirect(auth, googleProvider);
       return null;
     }
