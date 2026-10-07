@@ -122,6 +122,8 @@ export function subscribeToUserNotes(
           title: data.title,
           details: data.details || '',
           icon: data.icon || 'pin',
+          time: data.time || '',
+          color: data.color || 'blue',
           createdAt: data.createdAt || new Date().toISOString(),
         });
       });
@@ -148,6 +150,8 @@ export async function saveNoteToCloud(userId: string, note: UserNote): Promise<v
     title: note.title,
     details: note.details || '',
     icon: note.icon || 'pin',
+    time: note.time || '',
+    color: note.color || 'blue',
     createdAt: note.createdAt,
     updatedAt: new Date().toISOString(),
   }, { merge: true });

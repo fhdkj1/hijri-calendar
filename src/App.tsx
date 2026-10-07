@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { User } from 'firebase/auth';
 import {
   getHijriMonthCalendar,
   getHijriFromGregorian,
-  toArabicNumerals,
+  HIJRI_MONTHS_AR,
   type UserNote,
 } from './utils/hijriCalendar';
 import {
@@ -15,13 +15,107 @@ import {
   checkRedirectAuth,
   logOut,
 } from './services/firebase';
-import { CalendarHeader } from './components/CalendarHeader';
-import { CalendarGrid } from './components/CalendarGrid';
-import { RuledNotebookSection } from './components/RuledNotebookSection';
+import { ModernCalendarHeader } from './components/ModernCalendarHeader';
+import { ModernCalendarGrid } from './components/ModernCalendarGrid';
+import { ModernDayAgenda } from './components/ModernDayAgenda';
 import { BottomNavBar, type TabType } from './components/BottomNavBar';
 import { DateConverterView } from './components/DateConverterView';
 import { EventsListView } from './components/EventsListView';
 import { SettingsView } from './components/SettingsView';
+
+const DEFAULT_INITIAL_NOTES: UserNote[] = [
+  {
+    id: 'demo-1',
+    title: 'اجتماع فريق العمل',
+    details: 'مناقشة خطة العمل والتحديثات',
+    time: '10:00 ص – 11:00 ص',
+    color: 'blue',
+    icon: 'users',
+    hijriYear: 1448,
+    hijriMonth: 4,
+    hijriDay: 26,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'demo-2',
+    title: 'مراجعة الميزانية',
+    details: 'مراجعة المصروفات والتقارير المالية',
+    time: '1:00 م – 2:00 م',
+    color: 'amber',
+    icon: 'file',
+    hijriYear: 1448,
+    hijriMonth: 4,
+    hijriDay: 26,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'demo-3',
+    title: 'موعد عائلة',
+    details: 'جلسة عائلية مسائية',
+    time: '7:00 م – 9:00 م',
+    color: 'rose',
+    icon: 'home',
+    hijriYear: 1448,
+    hijriMonth: 4,
+    hijriDay: 26,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'demo-4',
+    title: 'تجديد نت صالح الحج',
+    time: '10:00 ص',
+    color: 'blue',
+    icon: 'users',
+    hijriYear: 1448,
+    hijriMonth: 4,
+    hijriDay: 21,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'demo-5',
+    title: 'Rural Kutxa a San Seb.',
+    time: '8:00 ص',
+    color: 'amber',
+    icon: 'users',
+    hijriYear: 1448,
+    hijriMonth: 4,
+    hijriDay: 23,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'demo-6',
+    title: 'SPAR Budapest Mar.',
+    time: '9:00 ص',
+    color: 'amber',
+    icon: 'users',
+    hijriYear: 1448,
+    hijriMonth: 4,
+    hijriDay: 29,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'demo-7',
+    title: 'جدد نت اللي ت',
+    time: '10:00 ص',
+    color: 'blue',
+    icon: 'users',
+    hijriYear: 1448,
+    hijriMonth: 5,
+    hijriDay: 5,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'demo-8',
+    title: 'عروض بالرياض بيجون أهلي',
+    time: '5:00 م',
+    color: 'blue',
+    icon: 'users',
+    hijriYear: 1448,
+    hijriMonth: 5,
+    hijriDay: 12,
+    createdAt: new Date().toISOString(),
+  },
+];
 
 export function App() {
   // Navigation tabs
@@ -92,18 +186,38 @@ export function App() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          // Remove all test benchmark events (preserving any custom user notes)
+        if (Array.isArray(parsed) && parsed.length > 0) {
           const cleanNotes = parsed.filter((n) => !n.id?.startsWith('perf-test-'));
-          localStorage.setItem('hijri_user_notes', JSON.stringify(cleanNotes));
-          return cleanNotes;
+          if (cleanNotes.length > 0) {
+            localStorage.setItem('hijri_user_notes', JSON.stringify(cleanNotes));
+            return cleanNotes;
+          }
         }
       } catch {
         // fallback
       }
     }
-    return [];
+    localStorage.setItem('hijri_user_notes', JSON.stringify(DEFAULT_INITIAL_NOTES));
+    return DEFAULT_INITIAL_NOTES;
   });
+
+  // Gregorian date navigation matching the new screenshot design
+  const [selectedGregorianDate, setSelectedGregorianDate] = useState<Date>(() => {
+    const saved = localStorage.getItem('miqat_selected_g_date');
+    if (saved) {
+      const d = new Date(saved);
+      if (!isNaN(d.getTime())) return d;
+    }
+    return new Date();
+  });
+
+  const [currentGYear, setCurrentGYear] = useState<number>(() => selectedGregorianDate.getFullYear());
+  const [currentGMonth, setCurrentGMonth] = useState<number>(() => selectedGregorianDate.getMonth());
+  const [calendarViewMode, setCalendarViewMode] = useState<'month' | 'week' | 'day'>('month');
+
+  useEffect(() => {
+    localStorage.setItem('miqat_selected_g_date', selectedGregorianDate.toISOString());
+  }, [selectedGregorianDate]);
 
   // Selected date: loaded from localStorage so refresh keeps the user on the exact same date
   const [currentYear, setCurrentYear] = useState<number>(() => {
@@ -134,10 +248,6 @@ export function App() {
     return initH.day;
   });
 
-  // Today's actual date
-  const todayHijri = useMemo(() => {
-    return getHijriFromGregorian(new Date(), adjustment);
-  }, [adjustment]);
 
   // Persist selected date and tab locally so refresh preserves them
   useEffect(() => {
@@ -229,24 +339,6 @@ export function App() {
     );
   }, [currentYear, currentMonth, adjustment, deletedIslamicEventIds]);
 
-  // Gregorian month & year corresponding to this Hijri month
-  const gregorianMonthYear = useMemo(() => {
-    if (!calendarData.days || calendarData.days.length === 0) return '';
-    const first = calendarData.days[0];
-    const last = calendarData.days[calendarData.days.length - 1];
-
-    const num = (v: number | string) =>
-      useArabicDigits ? toArabicNumerals(v) : String(v);
-
-    if (first.gregorianYear === last.gregorianYear) {
-      if (first.gregorianMonth === last.gregorianMonth) {
-        return `${first.gregorianMonthNameAr} ${num(first.gregorianYear)} م`;
-      }
-      return `${first.gregorianMonthNameAr} - ${last.gregorianMonthNameAr} ${num(first.gregorianYear)} م`;
-    }
-    return `${first.gregorianMonthNameAr} ${num(first.gregorianYear)} - ${last.gregorianMonthNameAr} ${num(last.gregorianYear)} م`;
-  }, [calendarData.days, useArabicDigits]);
-
   // Keep selected day within valid month days
   useEffect(() => {
     if (selectedDay > calendarData.totalDays) {
@@ -254,107 +346,17 @@ export function App() {
     }
   }, [calendarData.totalDays, selectedDay]);
 
-  const selectedDayInfo = useMemo(() => {
-    return calendarData.days.find((d) => d.day === selectedDay) || null;
-  }, [calendarData.days, selectedDay]);
-
-  const isToday =
-    currentYear === todayHijri.year &&
-    currentMonth === todayHijri.month &&
-    selectedDay === todayHijri.day;
-
-  // Map of days with user notes (count + chosen icon + title)
-  const notesDayMap = useMemo(() => {
-    const map: Record<number, { count: number; icon?: string; title?: string }> = {};
-    userNotes.forEach((n) => {
-      if (n.hijriYear === currentYear && n.hijriMonth === currentMonth) {
-        if (!map[n.hijriDay]) {
-          map[n.hijriDay] = { count: 1, icon: n.icon || 'pin', title: n.title };
-        } else {
-          map[n.hijriDay].count += 1;
-        }
-      }
-    });
-    return map;
-  }, [userNotes, currentYear, currentMonth]);
-
-  // Month events collection
-  const monthEvents = useMemo(() => {
-    const events: { day: number; event: any }[] = [];
-    calendarData.days.forEach((dayInfo) => {
-      dayInfo.events.forEach((ev) => {
-        events.push({ day: dayInfo.day, event: ev });
-      });
-    });
-    return events;
-  }, [calendarData.days]);
-
-  // Month navigation handlers
-  const handlePrevMonth = () => {
-    if (currentMonth === 1) {
-      setCurrentMonth(12);
-      setCurrentYear((y) => y - 1);
-    } else {
-      setCurrentMonth((m) => m - 1);
-    }
-    setSelectedDay(1);
-  };
-
-  const handleNextMonth = () => {
-    if (currentMonth === 12) {
-      setCurrentMonth(1);
-      setCurrentYear((y) => y + 1);
-    } else {
-      setCurrentMonth((m) => m + 1);
-    }
-    setSelectedDay(1);
-  };
-
-  // Swipe gesture handling for month navigation (Right = Next, Left = Previous)
-  const touchStartXRef = useRef<number | null>(null);
-  const touchStartYRef = useRef<number | null>(null);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length === 1) {
-      touchStartXRef.current = e.touches[0].clientX;
-      touchStartYRef.current = e.touches[0].clientY;
-    }
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null || touchStartYRef.current === null) return;
-    const touchEndX = e.changedTouches[0].clientX;
-    const touchEndY = e.changedTouches[0].clientY;
-
-    const diffX = touchEndX - touchStartXRef.current;
-    const diffY = touchEndY - touchStartYRef.current;
-
-    touchStartXRef.current = null;
-    touchStartYRef.current = null;
-
-    // Threshold: at least 40px horizontal movement, and horizontal distance > vertical distance
-    if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY) * 1.2) {
-      if (diffX > 0) {
-        // Swiped Right -> Next Month
-        handleNextMonth();
-      } else {
-        // Swiped Left -> Previous Month
-        handlePrevMonth();
-      }
-    }
-  };
-
   const handleJumpToDate = (year: number, month: number, day: number) => {
     setCurrentYear(year);
     setCurrentMonth(month);
     setSelectedDay(day);
-    setActiveTab('calendar');
-  };
-
-  const handleResetToToday = () => {
-    setCurrentYear(todayHijri.year);
-    setCurrentMonth(todayHijri.month);
-    setSelectedDay(todayHijri.day);
+    const cal = getHijriMonthCalendar(year, month, adjustment);
+    const dayInfo = cal.days.find((d) => d.day === day);
+    if (dayInfo) {
+      setSelectedGregorianDate(dayInfo.gregorianDate);
+      setCurrentGYear(dayInfo.gregorianYear);
+      setCurrentGMonth(dayInfo.gregorianMonth - 1);
+    }
     setActiveTab('calendar');
   };
 
@@ -416,76 +418,106 @@ export function App() {
     await logOut();
   };
 
-  const todayDayInGrid = useMemo(() => {
-    if (currentYear === todayHijri.year && currentMonth === todayHijri.month) {
-      return todayHijri.day;
+  const selectedHijriDate = useMemo(() => {
+    return getHijriFromGregorian(selectedGregorianDate, adjustment);
+  }, [selectedGregorianDate, adjustment]);
+
+  const midMonthHijri = useMemo(() => {
+    return getHijriFromGregorian(new Date(currentGYear, currentGMonth, 15), adjustment);
+  }, [currentGYear, currentGMonth, adjustment]);
+
+  const G_MONTH_NAMES_EN = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  const currentGMonthAbbr = G_MONTH_NAMES_EN[currentGMonth];
+  const currentHijriMonthNameAr = HIJRI_MONTHS_AR[midMonthHijri.month - 1];
+
+  const handleSelectGregorianDate = (date: Date) => {
+    setSelectedGregorianDate(date);
+    setCurrentGYear(date.getFullYear());
+    setCurrentGMonth(date.getMonth());
+    const h = getHijriFromGregorian(date, adjustment);
+    setCurrentYear(h.year);
+    setCurrentMonth(h.month);
+    setSelectedDay(h.day);
+  };
+
+  const handlePrevGMonth = () => {
+    if (currentGMonth === 0) {
+      setCurrentGMonth(11);
+      setCurrentGYear((y) => y - 1);
+    } else {
+      setCurrentGMonth((m) => m - 1);
     }
-    if (currentYear === 1435 && currentMonth === 12) {
-      return 4;
+  };
+
+  const handleNextGMonth = () => {
+    if (currentGMonth === 11) {
+      setCurrentGMonth(0);
+      setCurrentGYear((y) => y + 1);
+    } else {
+      setCurrentGMonth((m) => m + 1);
     }
-    return null;
-  }, [currentYear, currentMonth, todayHijri.year, todayHijri.month, todayHijri.day]);
+  };
+
+  const handleJumpToTodayG = () => {
+    const now = new Date();
+    handleSelectGregorianDate(now);
+  };
+
+  const currentSelectedEvents = useMemo(() => {
+    return userNotes.filter((n) => {
+      return (
+        n.hijriYear === selectedHijriDate.year &&
+        n.hijriMonth === selectedHijriDate.month &&
+        n.hijriDay === selectedHijriDate.day
+      );
+    });
+  }, [userNotes, selectedHijriDate]);
 
   return (
     <div dir="rtl" className="w-full h-full min-h-screen bg-neutral-100 flex flex-col items-center">
       {/* Native Full-Screen App Container (edge-to-edge on mobile, clean centered column on desktop) */}
       <div className="w-full max-w-md h-full min-h-screen sm:min-h-screen bg-white text-neutral-800 flex flex-col justify-between shadow-xs sm:border-x sm:border-neutral-200/80 overflow-hidden relative">
 
-        {/* Calendar View */}
+        {/* Modern Main Calendar View (Matching user's attached design) */}
         {activeTab === 'calendar' && (
-          <div className="flex-1 flex flex-col overflow-hidden bg-white">
-            {/* Swipable Calendar Area (Header + Grid) */}
-            <div
-              onTouchStart={handleTouchStart}
-              onTouchEnd={handleTouchEnd}
-              className="flex flex-col select-none touch-pan-y"
-            >
-              {/* Modern Header */}
-              <CalendarHeader
-                hijriYear={currentYear}
-                hijriMonth={currentMonth}
-                selectedDay={selectedDay}
-                onPrevMonth={handlePrevMonth}
-                onNextMonth={handleNextMonth}
-                onJumpToDate={handleJumpToDate}
-                onResetToToday={handleResetToToday}
-                useArabicDigits={useArabicDigits}
-                isToday={isToday}
-                gregorianMonthYear={gregorianMonthYear}
-                todayDay={todayHijri.day}
-                userNotes={userNotes}
-                deletedIslamicEventIds={deletedIslamicEventIds}
-              />
-
-              {/* Modern Calendar Grid */}
-              <CalendarGrid
-                days={calendarData.days}
-                startWeekday={calendarData.startWeekday}
-                selectedDay={selectedDay}
-                onSelectDay={(day) => setSelectedDay(day)}
-                useArabicDigits={useArabicDigits}
-                notesDayMap={notesDayMap}
-                showIslamicEvents={showIslamicEvents}
-                todayDay={todayDayInGrid}
-              />
-            </div>
-
-            {/* Modern Ruled Notebook / Occasions & Notes Section */}
-            <RuledNotebookSection
-              selectedDayInfo={selectedDayInfo}
-              monthEvents={monthEvents}
-              userNotes={userNotes}
-              onAddNote={handleAddNote}
-              onUpdateNote={handleUpdateNote}
-              onDeleteNote={handleDeleteNote}
+          <div className="flex-1 flex flex-col overflow-y-auto bg-white smooth-scroll pb-16">
+            {/* Top Modern Header with Mihrab Arch and Mosque Art */}
+            <ModernCalendarHeader
+              gregorianMonthNameEn={currentGMonthAbbr}
+              gregorianYear={currentGYear}
+              hijriYear={midMonthHijri.year}
+              hijriMonthNameAr={currentHijriMonthNameAr}
+              todayDayNumber={new Date().getDate()}
+              viewMode={calendarViewMode}
+              onChangeViewMode={setCalendarViewMode}
+              onPrevMonth={handlePrevGMonth}
+              onNextMonth={handleNextGMonth}
+              onJumpToToday={handleJumpToTodayG}
+              onOpenSearch={() => setActiveTab('events')}
+              onOpenMenu={() => setActiveTab('settings')}
               useArabicDigits={useArabicDigits}
-              showIslamicEvents={showIslamicEvents}
-              selectedDay={selectedDay}
-              onSelectDay={(day) => setSelectedDay(day)}
-              calendarDays={calendarData.days}
-              todayHijri={todayHijri}
-              currentYear={currentYear}
-              currentMonth={currentMonth}
+            />
+
+            {/* Modern Calendar Grid with S M T W T F S and event pills */}
+            <ModernCalendarGrid
+              currentGregorianYear={currentGYear}
+              currentGregorianMonth={currentGMonth}
+              selectedDate={selectedGregorianDate}
+              onSelectDate={handleSelectGregorianDate}
+              userNotes={userNotes}
+              adjustment={adjustment}
+              viewMode={calendarViewMode}
+            />
+
+            {/* Selected Day Agenda Section with Day number, title, and + Add Event */}
+            <ModernDayAgenda
+              selectedDate={selectedGregorianDate}
+              hijriDate={selectedHijriDate}
+              events={currentSelectedEvents}
+              onAddEvent={handleAddNote}
+              onUpdateEvent={handleUpdateNote}
+              onDeleteEvent={handleDeleteNote}
+              useArabicDigits={useArabicDigits}
             />
           </div>
         )}

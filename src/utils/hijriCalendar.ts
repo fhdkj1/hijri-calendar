@@ -38,6 +38,8 @@ export interface UserNote {
   title: string;
   details?: string;
   icon?: string;
+  time?: string;
+  color?: string;
   createdAt: string;
 }
 
