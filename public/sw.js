@@ -1,4 +1,4 @@
-const CACHE_NAME = 'miqat-pwa-v3';
+const CACHE_NAME = 'miqat-pwa-v4';
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',

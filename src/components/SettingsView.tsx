@@ -12,9 +12,10 @@ import {
   Loader2,
   Smartphone,
   Download,
+  Trash2,
 } from 'lucide-react';
 import { toArabicNumerals } from '../utils/hijriCalendar';
-import { signInWithGoogle, logOut } from '../services/firebase';
+import { signInWithGoogle } from '../services/firebase';
 import { GoogleIcon } from './SyncAccountBar';
 
 interface SettingsViewProps {
@@ -25,6 +26,7 @@ interface SettingsViewProps {
   onJumpToScreenshotDate: () => void;
   user: User | null;
   notesCount: number;
+  onSignOut: (keepLocalEvents: boolean) => Promise<void>;
 }
 
 export const SettingsView = ({
@@ -35,6 +37,7 @@ export const SettingsView = ({
   onJumpToScreenshotDate,
   user,
   notesCount,
+  onSignOut,
 }: SettingsViewProps) => {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -69,6 +72,16 @@ export const SettingsView = ({
   };
 
   const [authError, setAuthError] = useState<string | null>(null);
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3500);
+  };
 
   const num = (val: number | string) =>
     useArabicDigits ? toArabicNumerals(val) : String(val);
@@ -98,11 +111,21 @@ export const SettingsView = ({
     }
   };
 
-  const handleSignOut = async () => {
+  const confirmSignOut = async (keepLocalEvents: boolean) => {
     try {
-      await logOut();
+      setIsSigningOut(true);
+      await onSignOut(keepLocalEvents);
+      setShowSignOutModal(false);
+      showToast(
+        keepLocalEvents
+          ? 'تم تسجيل الخروج مع الاحتفاظ بالمناسبات على هذا الجهاز'
+          : 'تم تسجيل الخروج ومسح المناسبات من هذا الجهاز'
+      );
     } catch (err) {
-      console.error(err);
+      console.error('Sign-out error:', err);
+      showToast('حدث خطأ أثناء تسجيل الخروج');
+    } finally {
+      setIsSigningOut(false);
     }
   };
 
@@ -148,8 +171,8 @@ export const SettingsView = ({
             <div className="space-y-3">
               <div className="flex items-center justify-between bg-neutral-50 p-2.5 rounded-xl border border-neutral-150">
                 <button
-                  onClick={handleSignOut}
-                  className="flex items-center gap-1 text-xs text-red-600 hover:bg-red-50 p-1.5 rounded-lg font-medium transition"
+                  onClick={() => setShowSignOutModal(true)}
+                  className="flex items-center gap-1 text-xs text-red-600 hover:bg-red-50 p-1.5 rounded-lg font-medium transition active:scale-95"
                 >
                   <LogOut size={13} />
                   <span>تسجيل الخروج</span>
@@ -342,6 +365,94 @@ export const SettingsView = ({
           تطبيق ميقات (MIQAT) للتقويم الهجري والميلادي وحفظ المناسبات والأحداث وفق حسابات تقويم أم القرى بدقة عالية.
         </div>
       </div>
+
+      {/* Sign-Out Options Modal */}
+      {showSignOutModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200"
+          dir="rtl"
+        >
+          <div className="bg-white w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-neutral-200/90 space-y-4 animate-in zoom-in-95 duration-150">
+            {/* Header */}
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-red-50 text-[#841c1c] flex items-center justify-center shrink-0 border border-red-100">
+                <LogOut size={20} />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-neutral-900">تسجيل الخروج من الحساب</h3>
+                <p className="text-xs text-neutral-600 leading-relaxed">
+                  هل ترغب في الاحتفاظ بجميع مناسباتك وأحداثك على هذا الجهاز، أم مسحها؟
+                </p>
+              </div>
+            </div>
+
+            {/* Cloud Safe Assurance */}
+            <div className="bg-emerald-50/90 border border-emerald-200/80 rounded-2xl p-3 text-[11px] text-emerald-900 flex items-center gap-2.5">
+              <CloudCheck size={18} className="text-emerald-700 shrink-0" />
+              <span className="leading-relaxed">
+                مناسباتك ستبقى محفوظة دائماً بأمان في حساب Google السحابي، وستعود تلقائياً فور تسجيل الدخول مجدداً على أي جهاز.
+              </span>
+            </div>
+
+            {/* Options */}
+            <div className="space-y-2 pt-1">
+              {/* Option 1: Keep Events */}
+              <button
+                onClick={() => confirmSignOut(true)}
+                disabled={isSigningOut}
+                className="w-full text-right p-3 rounded-2xl border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 active:scale-98 transition flex items-center justify-between group"
+              >
+                <div className="space-y-0.5">
+                  <div className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
+                    <Smartphone size={13} className="text-[#841c1c]" />
+                    <span>الاحتفاظ بالمناسبات على هذا الجهاز</span>
+                  </div>
+                  <div className="text-[10.5px] text-neutral-500">
+                    تبقى المناسبات ظاهرة في التقويم على هاتفك حتى بعد تسجيل الخروج.
+                  </div>
+                </div>
+                <Check size={16} className="text-neutral-400 group-hover:text-emerald-600 shrink-0 mr-2" />
+              </button>
+
+              {/* Option 2: Clear Events */}
+              <button
+                onClick={() => confirmSignOut(false)}
+                disabled={isSigningOut}
+                className="w-full text-right p-3 rounded-2xl border border-red-200 bg-red-50/40 hover:bg-red-50 hover:border-red-300 active:scale-98 transition flex items-center justify-between group"
+              >
+                <div className="space-y-0.5">
+                  <div className="text-xs font-bold text-red-700 flex items-center gap-1.5">
+                    <Trash2 size={13} className="text-red-600" />
+                    <span>مسح المناسبات من هذا الجهاز</span>
+                  </div>
+                  <div className="text-[10.5px] text-red-600/80">
+                    إفراغ التقويم على هذا الجهاز فقط (محفوظة بأمان في السحابة).
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            {/* Actions / Cancel */}
+            <div className="pt-1 flex items-center justify-center">
+              <button
+                onClick={() => setShowSignOutModal(false)}
+                disabled={isSigningOut}
+                className="w-full py-2.5 text-xs font-semibold text-neutral-500 hover:text-neutral-800 transition rounded-xl hover:bg-neutral-100"
+              >
+                إلغاء والتراجع
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-neutral-900/95 text-white text-xs py-2 px-4 rounded-xl shadow-lg border border-neutral-700/50 backdrop-blur-sm flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <Check size={14} className="text-emerald-400" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 };

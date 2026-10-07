@@ -13,6 +13,7 @@ import {
   deleteNoteFromCloud,
   syncLocalNotesToCloud,
   checkRedirectAuth,
+  logOut,
 } from './services/firebase';
 import { CalendarHeader } from './components/CalendarHeader';
 import { CalendarGrid } from './components/CalendarGrid';
@@ -407,6 +408,14 @@ export function App() {
     }
   };
 
+  const handleSignOut = async (keepLocalEvents: boolean) => {
+    if (!keepLocalEvents) {
+      setUserNotes([]);
+      localStorage.setItem('hijri_user_notes', '[]');
+    }
+    await logOut();
+  };
+
   const todayDayInGrid = useMemo(() => {
     if (currentYear === todayHijri.year && currentMonth === todayHijri.month) {
       return todayHijri.day;
@@ -517,6 +526,7 @@ export function App() {
             onJumpToScreenshotDate={() => handleJumpToDate(1435, 12, 19)}
             user={user}
             notesCount={userNotes.length}
+            onSignOut={handleSignOut}
           />
         )}
 
