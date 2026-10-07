@@ -21,15 +21,14 @@ import {
 } from 'firebase/firestore';
 import type { UserNote } from '../utils/hijriCalendar';
 
-// Firebase configuration for Hijri Calendar Sync
-// authDomain must match the Authorized Redirect URI registered in Google Cloud Console OAuth Client
+// Firebase configuration for MIQAT Calendar Sync
 const firebaseConfig = {
-  projectId: "workout-sync-2026",
-  appId: "1:127182901874:web:04eb4a47fbc6f112d0a8eb",
-  storageBucket: "workout-sync-2026.firebasestorage.app",
-  apiKey: "AIzaSyC0Kq-4Fmnppbo5R13TJAEFf0kQ-I8wyGk",
-  authDomain: "workout-sync-2026.firebaseapp.com",
-  messagingSenderId: "127182901874",
+  projectId: "miqat-calendar-2026",
+  appId: "1:973346546918:web:674efdf9123996a7b1c727",
+  storageBucket: "miqat-calendar-2026.firebasestorage.app",
+  apiKey: "AIzaSyDoD6n5EkqThtxvC8VruaORA8d6rrxPq1k",
+  authDomain: "miqat-calendar-2026.firebaseapp.com",
+  messagingSenderId: "973346546918",
 };
 
 // Initialize Firebase
