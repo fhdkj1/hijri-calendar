@@ -527,6 +527,16 @@ export function App() {
             user={user}
             notesCount={userNotes.length}
             onSignOut={handleSignOut}
+            onBack={() => setActiveTab('calendar')}
+            userNotes={userNotes}
+            onImportNotes={(imported) => {
+              setUserNotes(imported);
+              localStorage.setItem('hijri_user_notes', JSON.stringify(imported));
+            }}
+            onClearAllNotes={() => {
+              setUserNotes([]);
+              localStorage.setItem('hijri_user_notes', '[]');
+            }}
           />
         )}
 
