@@ -124,7 +124,7 @@ export const CalendarHeader = ({
   }, [searchQuery, searchableEvents]);
 
   return (
-    <div className="bg-[#F8F6F1]/95 backdrop-blur-md border-b border-[#E8E4DA] px-4 pt-[calc(env(safe-area-inset-top,0px)+14px)] pb-3 select-none z-20">
+    <div className="bg-[#F8F6F1]/95 backdrop-blur-md border-b border-[#E8E4DA] px-4 pt-[calc(env(safe-area-inset-top,0px)+8px)] pb-2 select-none z-20 shrink-0">
       {/* Layali Najd Header: Navigation Arrows + Large Elegant Month Title + Actions */}
       <div className="flex items-center justify-between">
         {/* Month Navigation & Title (Right in RTL) */}

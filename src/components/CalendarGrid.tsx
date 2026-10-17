@@ -33,15 +33,15 @@ export const CalendarGrid = ({
     useArabicDigits ? toArabicNumerals(val) : String(val);
 
   return (
-    <div className="w-full bg-[#F8F6F1] select-none px-2 sm:px-3 pt-1 pb-3">
+    <div className="w-full bg-[#F8F6F1] select-none px-2 sm:px-3 pt-0.5 pb-2 shrink-0">
       {/* Weekday Row (RTL: الأحد to السبت, الجمعة highlighted in subtle gold #B68B4C) */}
-      <div className="grid grid-cols-7 text-center mb-1">
+      <div className="grid grid-cols-7 text-center mb-0.5">
         {ARABIC_WEEKDAYS.map((name) => {
           const isFriday = name === 'الجمعة';
           return (
             <div
               key={name}
-              className={`py-1.5 text-[11px] sm:text-xs font-medium tracking-tight ${
+              className={`py-1 text-[11px] sm:text-xs font-medium tracking-tight ${
                 isFriday ? 'text-[#B68B4C] font-semibold' : 'text-[#8C8C8C]'
               }`}
             >
@@ -51,13 +51,13 @@ export const CalendarGrid = ({
         })}
       </div>
 
-      {/* Days Grid: 7 columns, breathable spacious cells without heavy borders */}
+      {/* Days Grid: 7 columns, breathable compact cells without heavy borders */}
       <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
         {/* Leading blank cells */}
         {leadingBlanks.map((_, idx) => (
           <div
             key={`blank-${idx}`}
-            className="min-h-[56px] sm:min-h-[62px] rounded-2xl opacity-0"
+            className="min-h-[44px] sm:min-h-[52px] rounded-xl opacity-0"
           />
         ))}
 
@@ -85,26 +85,26 @@ export const CalendarGrid = ({
             <div
               key={dayInfo.day}
               onClick={() => onSelectDay(dayInfo.day)}
-              className={`relative min-h-[56px] sm:min-h-[62px] p-1 sm:p-1.5 rounded-2xl flex flex-col items-center justify-between cursor-pointer transition-all duration-200 active:scale-95 ${
+              className={`relative min-h-[44px] sm:min-h-[52px] py-0.5 px-0.5 rounded-xl flex flex-col items-center justify-between cursor-pointer transition-all duration-150 active:scale-95 ${
                 isSelected
-                  ? 'bg-[#F1EEE7] border border-[#183B3A]/20 shadow-2xs'
+                  ? 'bg-[#F1EEE7] border border-[#183B3A]/25 shadow-2xs'
                   : isToday
                   ? 'bg-[#F1EEE7]/60 hover:bg-[#F1EEE7]'
                   : 'bg-transparent hover:bg-[#F1EEE7]/50'
               }`}
             >
               {/* Top/Center: Hijri Day Number in Circular Badge if Selected/Today */}
-              <div className="flex flex-col items-center justify-center mt-0.5">
+              <div className="flex flex-col items-center justify-center">
                 {isSelected || isToday ? (
                   <span
-                    className="w-8 h-8 rounded-full bg-[#183B3A] text-white flex items-center justify-center font-bold text-sm sm:text-base shadow-xs leading-none"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#183B3A] text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-xs leading-none"
                     title={isToday ? 'اليوم' : 'اليوم المحدد'}
                   >
                     {num(dayInfo.day)}
                   </span>
                 ) : (
                   <span
-                    className={`w-8 h-8 flex items-center justify-center text-sm sm:text-base font-semibold leading-none ${
+                    className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-xs sm:text-sm font-semibold leading-none ${
                       isFriday ? 'text-[#B68B4C] font-bold' : 'text-[#252525]'
                     }`}
                   >
@@ -114,16 +114,16 @@ export const CalendarGrid = ({
               </div>
 
               {/* Bottom: Smaller Gregorian Date + Tiny Event Indicator */}
-              <div className="w-full flex items-center justify-center gap-1 mt-0.5">
+              <div className="w-full flex items-center justify-center gap-1">
                 {/* Gregorian Day Number */}
-                <span className="font-sans text-[10px] sm:text-[11px] text-[#8C8C8C] font-medium leading-none">
+                <span className="font-sans text-[9px] sm:text-[10px] text-[#8C8C8C] font-medium leading-none">
                   {dayInfo.gregorianDay}
                 </span>
 
                 {/* Small indicator: Flag or tiny sand-gold dot for occasions */}
                 {firstEventIcon === 'flag' ? (
                   <div className="shrink-0 -mt-0.5" title={firstEventTitle || ''}>
-                    <EventIconRenderer icon="flag" size={12} />
+                    <EventIconRenderer icon="flag" size={10} />
                   </div>
                 ) : hasEvent || noteInfo ? (
                   <div
@@ -142,7 +142,7 @@ export const CalendarGrid = ({
         }).map((_, idx) => (
           <div
             key={`trailing-blank-${idx}`}
-            className="min-h-[56px] sm:min-h-[62px] rounded-2xl opacity-0"
+            className="min-h-[44px] sm:min-h-[52px] rounded-xl opacity-0"
           />
         ))}
       </div>

@@ -251,9 +251,9 @@ export const RuledNotebookSection = ({
     useArabicDigits ? toArabicNumerals(val) : String(val);
 
   return (
-    <div className="flex-1 flex flex-col bg-[#F8F6F1] border-t border-[#E8E4DA] relative select-none overflow-hidden">
+    <div className="flex-1 min-h-0 flex flex-col bg-[#F8F6F1] border-t border-[#E8E4DA] relative select-none overflow-hidden">
       {/* Layali Najd Events Header */}
-      <div className="px-4 py-3 bg-[#F8F6F1] flex items-center justify-between gap-2 border-b border-[#E8E4DA]/60">
+      <div className="px-4 py-2 bg-[#F8F6F1] flex items-center justify-between gap-2 border-b border-[#E8E4DA]/60 shrink-0">
         {/* Section Title & Segment Pills */}
         <div className="flex items-center gap-2.5">
           <span className="text-sm font-bold text-[#183B3A]">الأحداث</span>
@@ -295,7 +295,7 @@ export const RuledNotebookSection = ({
       </div>
 
       {/* Elegant Rounded Event Cards Container */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2.5 smooth-scroll min-h-[160px]">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2 space-y-2 smooth-scroll">
         {activeSegment === 'month' ? (
           /* Month Events Cards View */
           <div className="space-y-2.5">

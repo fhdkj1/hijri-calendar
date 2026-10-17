@@ -29,7 +29,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
   ];
 
   return (
-    <nav className="w-full bg-[#F8F6F1]/95 backdrop-blur-xl border-t border-[#E8E4DA] pt-2 pb-[max(env(safe-area-inset-bottom,10px),10px)] px-3 flex items-center justify-around select-none z-30">
+    <nav className="w-full shrink-0 bg-[#F8F6F1]/95 backdrop-blur-xl border-t border-[#E8E4DA] pt-1.5 pb-[max(env(safe-area-inset-bottom,8px),8px)] px-3 flex items-center justify-around select-none z-30">
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         const Icon = tab.icon;

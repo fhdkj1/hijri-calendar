@@ -427,18 +427,18 @@ export function App() {
   }, [currentYear, currentMonth, todayHijri.year, todayHijri.month, todayHijri.day]);
 
   return (
-    <div dir="rtl" className="w-full h-full min-h-screen bg-[#ECE8DE] flex flex-col items-center">
+    <div dir="rtl" className="w-full h-[100dvh] max-h-[100dvh] bg-[#ECE8DE] flex flex-col items-center overflow-hidden">
       {/* Native Full-Screen App Container (Layali Najd Warm Ivory + Subtle Geometric Texture) */}
-      <div className="w-full max-w-md h-full min-h-screen sm:min-h-screen bg-[#F8F6F1] najd-pattern text-[#252525] flex flex-col justify-between shadow-sm sm:border-x sm:border-[#E8E4DA] overflow-hidden relative">
+      <div className="w-full max-w-md h-[100dvh] max-h-[100dvh] bg-[#F8F6F1] najd-pattern text-[#252525] flex flex-col justify-between shadow-sm sm:border-x sm:border-[#E8E4DA] overflow-hidden relative">
 
         {/* Calendar View */}
         {activeTab === 'calendar' && (
-          <div className="flex-1 flex flex-col overflow-hidden bg-[#F8F6F1]">
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-[#F8F6F1]">
             {/* Swipable Calendar Area (Header + Grid) */}
             <div
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
-              className="flex flex-col select-none touch-pan-y"
+              className="flex flex-col select-none touch-pan-y shrink-0"
             >
               {/* Modern Header */}
               <CalendarHeader
