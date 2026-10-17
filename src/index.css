@@ -43,10 +43,10 @@
 
 /* iOS Safe Area Inset Helpers */
 .pt-safe {
-  padding-top: env(safe-area-inset-top, 0px);
+  padding-top: calc(env(safe-area-inset-top, 0px) + 14px);
 }
 .pb-safe {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
 }
 
 /* Smooth Touch Scrolling */

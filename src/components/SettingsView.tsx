@@ -388,7 +388,7 @@ export const SettingsView = ({
       />
 
       {/* Top Header Bar matching Screenshot */}
-      <header className="sticky top-0 z-20 bg-[#faf8f5]/90 backdrop-blur-md px-4 py-3.5 flex items-center justify-between border-b border-neutral-200/40">
+      <header className="sticky top-0 z-20 bg-[#faf8f5]/90 backdrop-blur-md px-4 pt-[calc(env(safe-area-inset-top,0px)+12px)] pb-3.5 flex items-center justify-between border-b border-neutral-200/40">
         {/* Left Back Arrow in Deep Burgundy */}
         <button
           type="button"

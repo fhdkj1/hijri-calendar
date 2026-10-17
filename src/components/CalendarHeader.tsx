@@ -124,7 +124,7 @@ export const CalendarHeader = ({
   }, [searchQuery, searchableEvents]);
 
   return (
-    <div className="bg-[#F8F6F1]/95 backdrop-blur-md border-b border-[#E8E4DA] px-4 pt-3.5 pb-3 select-none z-20">
+    <div className="bg-[#F8F6F1]/95 backdrop-blur-md border-b border-[#E8E4DA] px-4 pt-[calc(env(safe-area-inset-top,0px)+14px)] pb-3 select-none z-20">
       {/* Layali Najd Header: Navigation Arrows + Large Elegant Month Title + Actions */}
       <div className="flex items-center justify-between">
         {/* Month Navigation & Title (Right in RTL) */}
@@ -192,8 +192,8 @@ export const CalendarHeader = ({
 
       {/* Event Words Search Modal */}
       {showSearch && (
-        <div className="fixed inset-0 bg-[#183B3A]/40 backdrop-blur-xs flex items-start sm:items-center justify-center p-3 sm:p-4 z-50 animate-in fade-in duration-150">
-          <div className="bg-[#F8F6F1] rounded-3xl shadow-2xl w-full max-w-md text-right border border-[#E8E4DA] overflow-hidden flex flex-col max-h-[85vh] mt-8 sm:mt-0">
+        <div className="fixed inset-0 bg-[#183B3A]/40 backdrop-blur-xs flex items-start sm:items-center justify-center p-3 sm:p-4 z-50 animate-in fade-in duration-150 pt-[calc(env(safe-area-inset-top,0px)+16px)]">
+          <div className="bg-[#F8F6F1] rounded-3xl shadow-2xl w-full max-w-md text-right border border-[#E8E4DA] overflow-hidden flex flex-col max-h-[85vh]">
             {/* Search Input Bar */}
             <div className="p-3 border-b border-[#E8E4DA] bg-[#F1EEE7]/80 flex items-center gap-2">
               <button

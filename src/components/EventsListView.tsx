@@ -88,7 +88,7 @@ export const EventsListView = ({
   });
 
   return (
-    <div className="flex-1 flex flex-col bg-neutral-50/70 overflow-y-auto p-3.5 sm:p-4 select-none text-right smooth-scroll relative">
+    <div className="flex-1 flex flex-col bg-neutral-50/70 overflow-y-auto px-3.5 sm:px-4 pt-[calc(env(safe-area-inset-top,0px)+14px)] pb-3.5 sm:pb-4 select-none text-right smooth-scroll relative">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-neutral-900/95 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-full shadow-lg border border-neutral-700/60 flex items-center gap-2 animate-in fade-in slide-in-from-top-3 duration-200">

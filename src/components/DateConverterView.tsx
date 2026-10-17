@@ -52,7 +52,7 @@ export const DateConverterView = ({
   const hEvents = getIslamicEvents(hMonth, hDay);
 
   return (
-    <div className="flex-1 flex flex-col bg-neutral-50/70 overflow-y-auto p-4 select-none text-right smooth-scroll">
+    <div className="flex-1 flex flex-col bg-neutral-50/70 overflow-y-auto px-4 pt-[calc(env(safe-area-inset-top,0px)+14px)] pb-4 select-none text-right smooth-scroll">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 mb-3 border-b border-neutral-200/80">
         <span className="text-[11px] bg-amber-100/80 text-amber-900 px-2.5 py-1 rounded-full font-bold">
