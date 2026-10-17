@@ -6,7 +6,7 @@ import {
   toArabicNumerals,
   findHijriMonthStart,
 } from '../utils/hijriCalendar';
-import { KaabaIcon, BalloonIcon } from './CalendarIcons';
+import { KaabaIcon, BalloonIcon, SaudiFlagIcon } from './CalendarIcons';
 import { EventIconRenderer, EventIconPicker } from './EventIcons';
 
 interface RuledNotebookSectionProps {
@@ -251,38 +251,41 @@ export const RuledNotebookSection = ({
     useArabicDigits ? toArabicNumerals(val) : String(val);
 
   return (
-    <div className="flex-1 flex flex-col bg-white border-t border-neutral-200/80 relative select-none overflow-hidden">
-      {/* Modern Segmented Control Header */}
-      <div className="px-3 py-2 bg-neutral-50/80 border-b border-neutral-200/70 flex items-center justify-between gap-2">
-        {/* Pills */}
-        <div className="flex items-center bg-neutral-200/60 p-0.5 rounded-xl text-xs font-semibold">
-          <button
-            onClick={() => setActiveSegment('month')}
-            className={`px-3 py-1 rounded-lg transition-all ${
-              activeSegment === 'month'
-                ? 'bg-white text-neutral-900 shadow-2xs font-bold'
-                : 'text-neutral-600 hover:text-neutral-900'
-            }`}
-          >
-            مناسبات الشهر
-          </button>
-          <button
-            onClick={() => setActiveSegment('day')}
-            className={`px-3 py-1 rounded-lg transition-all ${
-              activeSegment === 'day'
-                ? 'bg-white text-neutral-900 shadow-2xs font-bold'
-                : 'text-neutral-600 hover:text-neutral-900'
-            }`}
-          >
-            اليوم المحدد
-          </button>
+    <div className="flex-1 flex flex-col bg-[#F8F6F1] border-t border-[#E8E4DA] relative select-none overflow-hidden">
+      {/* Layali Najd Events Header */}
+      <div className="px-4 py-3 bg-[#F8F6F1] flex items-center justify-between gap-2 border-b border-[#E8E4DA]/60">
+        {/* Section Title & Segment Pills */}
+        <div className="flex items-center gap-2.5">
+          <span className="text-sm font-bold text-[#183B3A]">الأحداث</span>
+          <div className="flex items-center bg-[#F1EEE7] p-0.5 rounded-full border border-[#E8E4DA]">
+            <button
+              onClick={() => setActiveSegment('month')}
+              className={`px-3 py-1 rounded-full text-xs transition-all ${
+                activeSegment === 'month'
+                  ? 'bg-[#183B3A] text-white font-bold shadow-xs'
+                  : 'text-[#8C8C8C] hover:text-[#252525] font-medium'
+              }`}
+            >
+              مناسبات الشهر
+            </button>
+            <button
+              onClick={() => setActiveSegment('day')}
+              className={`px-3 py-1 rounded-full text-xs transition-all ${
+                activeSegment === 'day'
+                  ? 'bg-[#183B3A] text-white font-bold shadow-xs'
+                  : 'text-[#8C8C8C] hover:text-[#252525] font-medium'
+              }`}
+            >
+              اليوم المحدد
+            </button>
+          </div>
         </div>
 
         {/* Add Note Button */}
         {selectedDayInfo && (
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1 text-xs text-[#841c1c] hover:bg-red-50 active:bg-red-100 px-2.5 py-1 rounded-xl font-bold transition border border-red-200/50"
+            className="flex items-center gap-1 text-xs bg-[#183B3A] hover:bg-[#122e2d] active:scale-95 text-white px-3 py-1.5 rounded-full font-bold transition shadow-xs"
             title="إضافة مناسبة أو تذكير"
           >
             <Plus size={13} className="stroke-[2.5]" />
@@ -291,13 +294,13 @@ export const RuledNotebookSection = ({
         )}
       </div>
 
-      {/* Lined Notebook Paper View (matching screenshot) */}
-      <div className="flex-1 overflow-y-auto notebook-ruled-lines px-4 py-1 smooth-scroll min-h-[160px]">
+      {/* Elegant Rounded Event Cards Container */}
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2.5 smooth-scroll min-h-[160px]">
         {activeSegment === 'month' ? (
-          /* Month Events View */
-          <div className="flex flex-col">
+          /* Month Events Cards View */
+          <div className="space-y-2.5">
             {allSortedMonthItems.length === 0 ? (
-              <div className="h-[42px] flex items-center justify-end text-neutral-400 text-sm italic">
+              <div className="py-8 text-center text-[#8C8C8C] text-xs font-medium">
                 لا توجد مناسبات مسجلة لهذا الشهر
               </div>
             ) : (
@@ -309,199 +312,193 @@ export const RuledNotebookSection = ({
                     key={item.id}
                     ref={isSelected ? selectedItemRef : undefined}
                     onClick={() => onSelectDay?.(item.day)}
-                    className={`h-[42px] flex items-center justify-between text-sm px-2.5 rounded-lg cursor-pointer transition-all ${
-                      item.noteId ? 'group' : ''
-                    } ${
+                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#dce868] text-neutral-950 font-bold shadow-2xs ring-1 ring-lime-600/30 opacity-100'
-                        : timing.isPast
-                        ? 'opacity-40 hover:opacity-75 text-neutral-500 hover:bg-neutral-100/40'
-                        : 'text-neutral-900 hover:bg-neutral-100/60'
+                        ? 'bg-[#F1EEE7] border-[#183B3A]/30 ring-1 ring-[#183B3A]/20 shadow-xs'
+                        : 'bg-[#F1EEE7] border-[#E8E4DA] hover:border-[#B68B4C]/40 shadow-2xs'
                     }`}
                   >
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <span
-                        className={`text-xs font-mono font-bold w-5 shrink-0 text-right ${
-                          isSelected
-                            ? 'text-neutral-950'
-                            : timing.isPast
-                            ? 'text-neutral-400'
-                            : 'text-neutral-500'
-                        }`}
-                      >
-                        {num(item.day)}
-                      </span>
-                      <span
-                        className={`truncate text-[13px] sm:text-sm ${
-                          item.isIslamic ? 'font-semibold' : 'font-medium'
-                        }`}
-                      >
-                        {item.title}
-                      </span>
-                      {/* Countdown / Remaining days badge */}
-                      <span
-                        className={`text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-md shrink-0 leading-none ${
-                          isSelected
-                            ? 'bg-black/10 text-neutral-950 font-bold'
-                            : timing.badgeClass
-                        }`}
-                      >
-                        {timing.text}
-                      </span>
-                      <div className="shrink-0 flex items-center">
-                        {item.icon === 'kaaba' && (
-                          <KaabaIcon size={18} className="drop-shadow-2xs" />
-                        )}
-                        {item.icon === 'balloon' && (
-                          <BalloonIcon size={18} className="drop-shadow-2xs" />
-                        )}
-                        {item.icon !== 'kaaba' && item.icon !== 'balloon' && item.isIslamic && (
-                          <Sparkles
-                            size={16}
-                            className={
-                              isSelected
-                                ? 'text-amber-900'
-                                : timing.isPast
-                                ? 'text-neutral-400'
-                                : 'text-amber-600'
-                            }
-                          />
-                        )}
-                        {!item.isIslamic && (
-                          <EventIconRenderer icon={item.icon || 'pin'} size={15} />
+                    <div className="flex items-center justify-between">
+                      {/* Right: Icon + Title & Hijri Date */}
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-white border border-[#E8E4DA] flex items-center justify-center shrink-0">
+                          {item.icon === 'kaaba' && <KaabaIcon size={18} />}
+                          {item.icon === 'balloon' && <BalloonIcon size={18} />}
+                          {item.icon === 'flag' && <SaudiFlagIcon size={18} />}
+                          {item.icon !== 'kaaba' &&
+                            item.icon !== 'balloon' &&
+                            item.icon !== 'flag' &&
+                            item.isIslamic && (
+                              <Sparkles size={16} className="text-[#B68B4C]" />
+                            )}
+                          {!item.isIslamic && (
+                            <EventIconRenderer icon={item.icon || 'pin'} size={15} />
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-bold text-[#252525] leading-snug">
+                            {item.title}
+                          </div>
+                          <div className="text-[11px] text-[#8C8C8C] font-medium mt-0.5">
+                            {num(item.day)} {selectedDayInfo?.monthNameAr || ''} {num(currentYear || 1448)}هـ
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Left: Countdown Badge & Actions */}
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={`text-[10.5px] font-bold px-2.5 py-0.5 rounded-full border leading-tight ${
+                            timing.isToday
+                              ? 'bg-[#183B3A] text-white border-[#183B3A]'
+                              : 'bg-[#B68B4C]/15 text-[#B68B4C] border-[#B68B4C]/30'
+                          }`}
+                        >
+                          {timing.text}
+                        </span>
+
+                        {item.note && (
+                          <div
+                            className="flex items-center gap-0.5"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => handleStartEditNote(item.note!)}
+                              className="p-1 text-[#8C8C8C] hover:text-[#252525] transition"
+                              title="تعديل المناسبة"
+                            >
+                              <Pencil size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setNoteToDelete(item.note!)}
+                              className="p-1 text-[#8C8C8C] hover:text-red-600 transition"
+                              title="حذف المناسبة"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
-                    {item.note && (
-                      <div
-                        className="flex items-center gap-0.5 shrink-0 opacity-80 group-hover:opacity-100 transition"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => handleStartEditNote(item.note!)}
-                          className={`p-1.5 transition rounded-lg ${
-                            isSelected
-                              ? 'text-neutral-700 hover:text-neutral-950 hover:bg-black/10'
-                              : 'text-neutral-400 hover:text-neutral-800 hover:bg-neutral-200/60'
-                          }`}
-                          title="تعديل المناسبة"
-                        >
-                          <Pencil size={13} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setNoteToDelete(item.note!)}
-                          className={`p-1.5 transition rounded-lg ${
-                            isSelected
-                              ? 'text-neutral-700 hover:text-red-700 hover:bg-black/10'
-                              : 'text-neutral-400 hover:text-red-600 hover:bg-neutral-200/60'
-                          }`}
-                          title="حذف المناسبة"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-                    )}
                   </div>
                 );
               })
             )}
           </div>
         ) : (
-          /* Selected Day View */
-          <div className="flex flex-col">
+          /* Selected Day Cards View */
+          <div className="space-y-2.5">
             {selectedDayInfo && (
-              <div className="h-[42px] flex items-center justify-between text-xs text-neutral-500 border-b border-neutral-200/60">
-                <span className="font-sans font-medium text-neutral-600">
+              <div className="p-3 bg-[#F1EEE7]/70 rounded-2xl border border-[#E8E4DA] flex items-center justify-between text-xs text-[#8C8C8C]">
+                <span className="font-sans font-medium text-[#252525]">
                   الموافق {num(selectedDayInfo.gregorianDay)}{' '}
                   {selectedDayInfo.gregorianMonthNameAr} {num(selectedDayInfo.gregorianYear)}م
                 </span>
-                <span className="font-bold text-neutral-900">
+                <span className="font-bold text-[#183B3A]">
                   {selectedDayInfo.weekdayAr} {num(selectedDayInfo.day)}{' '}
                   {selectedDayInfo.monthNameAr} {num(selectedDayInfo.year)}هـ
                 </span>
               </div>
             )}
 
-            {/* Day Events */}
+            {/* Day Islamic Events */}
             {showIslamicEvents &&
               selectedDayInfo?.events.map((event) => {
                 const timing = getEventTiming(selectedDayInfo.day);
                 return (
                   <div
                     key={event.id}
-                    className={`h-[42px] flex items-center justify-between text-sm px-2 rounded-lg transition-colors ${
-                      timing.isPast ? 'opacity-50 text-neutral-500' : 'text-neutral-900'
-                    }`}
+                    className="p-3.5 bg-[#F1EEE7] rounded-2xl border border-[#E8E4DA] flex items-center justify-between shadow-2xs"
                   >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-white border border-[#E8E4DA] flex items-center justify-center shrink-0">
+                        {event.icon === 'kaaba' && <KaabaIcon size={18} />}
+                        {event.icon === 'balloon' && <BalloonIcon size={18} />}
+                        {event.icon === 'flag' && <SaudiFlagIcon size={18} />}
+                        {event.icon !== 'kaaba' &&
+                          event.icon !== 'balloon' &&
+                          event.icon !== 'flag' && (
+                            <Sparkles size={16} className="text-[#B68B4C]" />
+                          )}
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-[#252525] text-sm">
+                          {event.titleAr}
+                        </div>
+                        {event.description && (
+                          <div className="text-[11px] text-[#8C8C8C] mt-0.5">
+                            {event.description}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                     <span
-                      className={`text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-md shrink-0 leading-none ${timing.badgeClass}`}
+                      className={`text-[10.5px] font-bold px-2.5 py-0.5 rounded-full border ${
+                        timing.isToday
+                          ? 'bg-[#183B3A] text-white border-[#183B3A]'
+                          : 'bg-[#B68B4C]/15 text-[#B68B4C] border-[#B68B4C]/30'
+                      }`}
                     >
                       {timing.text}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-[#841c1c] text-sm">{event.titleAr}</span>
-                      {event.icon === 'kaaba' && <KaabaIcon size={20} />}
-                      {event.icon === 'balloon' && <BalloonIcon size={20} />}
-                      {event.icon !== 'kaaba' && event.icon !== 'balloon' && (
-                        <Sparkles size={16} className="text-amber-600" />
-                      )}
-                    </div>
                   </div>
                 );
               })}
 
-            {/* Day Notes */}
+            {/* Day User Notes */}
             {selectedDayNotes.map((note) => {
               const timing = getEventTiming(note.hijriDay);
               return (
                 <div
                   key={note.id}
-                  className={`h-[42px] flex items-center justify-between text-neutral-800 text-sm px-1 hover:bg-neutral-50/60 rounded-lg transition-colors group ${
-                    timing.isPast ? 'opacity-50' : ''
-                  }`}
+                  className="p-3.5 bg-[#F1EEE7] rounded-2xl border border-[#E8E4DA] flex items-center justify-between shadow-2xs"
                 >
-                  <div className="flex items-center gap-0.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-white border border-[#E8E4DA] flex items-center justify-center shrink-0">
+                      <EventIconRenderer icon={note.icon || 'pin'} size={15} />
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-[#252525] text-sm">
+                        {note.title}
+                      </div>
+                      {note.details && (
+                        <div className="text-[11px] text-[#8C8C8C] mt-0.5">
+                          {note.details}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={`text-[10.5px] font-bold px-2.5 py-0.5 rounded-full border ${
+                        timing.isToday
+                          ? 'bg-[#183B3A] text-white border-[#183B3A]'
+                          : 'bg-[#B68B4C]/15 text-[#B68B4C] border-[#B68B4C]/30'
+                      }`}
+                    >
+                      {timing.text}
+                    </span>
                     <button
                       onClick={() => handleStartEditNote(note)}
-                      className="text-neutral-400 hover:text-neutral-800 hover:bg-neutral-100 transition p-1.5 rounded-lg"
-                      title="تعديل المناسبة"
+                      className="p-1 text-[#8C8C8C] hover:text-[#252525]"
                     >
                       <Pencil size={13} />
                     </button>
                     <button
                       onClick={() => setNoteToDelete(note)}
-                      className="text-neutral-400 hover:text-red-600 hover:bg-red-50 transition p-1.5 rounded-lg"
-                      title="حذف المناسبة"
+                      className="p-1 text-[#8C8C8C] hover:text-red-600"
                     >
                       <Trash2 size={13} />
                     </button>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-md shrink-0 leading-none ${timing.badgeClass}`}
-                    >
-                      {timing.text}
-                    </span>
-                    <div className="text-right">
-                      <div className="font-bold text-neutral-900 text-xs sm:text-sm">
-                        {note.title}
-                      </div>
-                      {note.details && (
-                        <div className="text-[11px] text-neutral-500">{note.details}</div>
-                      )}
-                    </div>
-                    <div className="w-7 h-7 rounded-xl bg-neutral-100 flex items-center justify-center shrink-0">
-                      <EventIconRenderer icon={note.icon || 'pin'} size={15} />
-                    </div>
                   </div>
                 </div>
               );
             })}
 
             {selectedDayInfo?.events.length === 0 && selectedDayNotes.length === 0 && (
-              <div className="h-[42px] flex items-center justify-center text-neutral-400 text-xs italic">
+              <div className="py-8 text-center text-[#8C8C8C] text-xs font-medium">
                 لا توجد مناسبات أو مذكرات مسجلة لهذا اليوم المحدد.
               </div>
             )}
@@ -523,7 +520,7 @@ export const RuledNotebookSection = ({
 
             <form onSubmit={handleCreateNote} className="space-y-3.5 mt-3">
               <div>
-                <label className="block text-xs font-semibold text-neutral-600 mb-1">
+                <label className="block text-xs font-semibold text-[#8C8C8C] mb-1">
                   عنوان المناسبة / الموعد
                 </label>
                 <input
@@ -532,7 +529,7 @@ export const RuledNotebookSection = ({
                   placeholder="مثال: موعد مهم، مناسبة عائلية، مراجعة..."
                   value={newNoteTitle}
                   onChange={(e) => setNewNoteTitle(e.target.value)}
-                  className="w-full text-sm border border-neutral-200 bg-neutral-50 rounded-xl px-3 py-2 text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#841c1c] focus:bg-white transition"
+                  className="w-full text-sm border border-[#E8E4DA] bg-white rounded-xl px-3 py-2 text-[#252525] focus:outline-none focus:ring-2 focus:ring-[#183B3A] transition"
                 />
               </div>
 
@@ -543,7 +540,7 @@ export const RuledNotebookSection = ({
               />
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-600 mb-1">
+                <label className="block text-xs font-semibold text-[#8C8C8C] mb-1">
                   تفاصيل إضافية (اختياري)
                 </label>
                 <textarea
@@ -551,21 +548,21 @@ export const RuledNotebookSection = ({
                   placeholder="ملاحظات وتفاصيل..."
                   value={newNoteDetails}
                   onChange={(e) => setNewNoteDetails(e.target.value)}
-                  className="w-full text-xs border border-neutral-200 bg-neutral-50 rounded-xl px-3 py-2 text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#841c1c] focus:bg-white transition"
+                  className="w-full text-xs border border-[#E8E4DA] bg-white rounded-xl px-3 py-2 text-[#252525] focus:outline-none focus:ring-2 focus:ring-[#183B3A] transition"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-neutral-150">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E8E4DA]">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 rounded-xl transition"
+                  className="px-4 py-2 text-xs font-semibold text-[#8C8C8C] hover:bg-neutral-100 rounded-xl transition"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs bg-[#841c1c] text-white rounded-xl font-bold hover:bg-[#6e1414] shadow-sm transition active:scale-95"
+                  className="px-5 py-2 text-xs bg-[#183B3A] text-white rounded-xl font-bold hover:bg-[#122e2d] shadow-sm transition active:scale-95"
                 >
                   حفظ المناسبة
                 </button>
@@ -597,19 +594,19 @@ export const RuledNotebookSection = ({
                   placeholder="عنوان المناسبة..."
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full text-sm border border-neutral-200 bg-neutral-50 rounded-xl px-3 py-2 text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#841c1c] focus:bg-white transition"
+                  className="w-full text-sm border border-[#E8E4DA] bg-white rounded-xl px-3 py-2 text-[#252525] focus:outline-none focus:ring-2 focus:ring-[#183B3A] transition"
                 />
               </div>
 
               {/* Day selection */}
               <div>
-                <label className="block text-xs font-semibold text-neutral-600 mb-1">
+                <label className="block text-xs font-semibold text-[#8C8C8C] mb-1">
                   يوم المناسبة في الشهر
                 </label>
                 <select
                   value={editDay}
                   onChange={(e) => setEditDay(parseInt(e.target.value, 10))}
-                  className="w-full text-xs border border-neutral-200 bg-neutral-50 rounded-xl px-3 py-2 text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#841c1c] focus:bg-white transition"
+                  className="w-full text-xs border border-[#E8E4DA] bg-white rounded-xl px-3 py-2 text-[#252525] focus:outline-none focus:ring-2 focus:ring-[#183B3A] transition"
                 >
                   {Array.from({ length: calendarDays.length || 30 }, (_, i) => i + 1).map((d) => (
                     <option key={d} value={d}>
@@ -626,7 +623,7 @@ export const RuledNotebookSection = ({
               />
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-600 mb-1">
+                <label className="block text-xs font-semibold text-[#8C8C8C] mb-1">
                   تفاصيل إضافية (اختياري)
                 </label>
                 <textarea
@@ -634,21 +631,21 @@ export const RuledNotebookSection = ({
                   placeholder="ملاحظات وتفاصيل..."
                   value={editDetails}
                   onChange={(e) => setEditDetails(e.target.value)}
-                  className="w-full text-xs border border-neutral-200 bg-neutral-50 rounded-xl px-3 py-2 text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#841c1c] focus:bg-white transition"
+                  className="w-full text-xs border border-[#E8E4DA] bg-white rounded-xl px-3 py-2 text-[#252525] focus:outline-none focus:ring-2 focus:ring-[#183B3A] transition"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-neutral-150">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E8E4DA]">
                 <button
                   type="button"
                   onClick={() => setEditingNote(null)}
-                  className="px-4 py-2 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 rounded-xl transition"
+                  className="px-4 py-2 text-xs font-semibold text-[#8C8C8C] hover:bg-neutral-100 rounded-xl transition"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs bg-[#841c1c] text-white rounded-xl font-bold hover:bg-[#6e1414] shadow-sm transition active:scale-95"
+                  className="px-5 py-2 text-xs bg-[#183B3A] text-white rounded-xl font-bold hover:bg-[#122e2d] shadow-sm transition active:scale-95"
                 >
                   حفظ التعديلات
                 </button>

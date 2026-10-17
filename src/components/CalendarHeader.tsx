@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, X, Sparkles } from 'lucide-react';
+import { Search, X, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   HIJRI_MONTHS_AR,
   toArabicNumerals,
@@ -37,6 +37,8 @@ function normalizeArabic(text: string): string {
 export const CalendarHeader = ({
   hijriYear,
   hijriMonth,
+  onPrevMonth,
+  onNextMonth,
   onJumpToDate,
   onResetToToday,
   useArabicDigits,
@@ -122,50 +124,66 @@ export const CalendarHeader = ({
   }, [searchQuery, searchableEvents]);
 
   return (
-    <div className="bg-white/95 backdrop-blur-md border-b border-neutral-150/80 px-3.5 pt-3 pb-2.5 select-none z-20">
-      {/* Header matching user uploaded screenshot: Title on right, Search & Today badge on left */}
+    <div className="bg-[#F8F6F1]/95 backdrop-blur-md border-b border-[#E8E4DA] px-4 pt-3.5 pb-3 select-none z-20">
+      {/* Layali Najd Header: Navigation Arrows + Large Elegant Month Title + Actions */}
       <div className="flex items-center justify-between">
-        {/* Right side (start in RTL): Month and Year Title (clean static display) */}
-        <div className="flex flex-col items-start text-right">
-          <span
-            className="text-xl sm:text-2xl font-black tracking-tight text-neutral-900 leading-tight whitespace-nowrap"
-            style={{
-              fontFamily:
-                '"Cairo", "Traditional Arabic", -apple-system, sans-serif',
-            }}
-          >
-            {formattedHeader}
-          </span>
-
-          {gregorianMonthYear && (
-            <span className="text-[11px] sm:text-xs font-semibold text-neutral-500 font-sans tracking-tight mt-0.5 whitespace-nowrap">
-              {gregorianMonthYear}
-            </span>
-          )}
-        </div>
-
-        {/* Left side (end in RTL): Search Icon & Today [4] Badge Icon */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          {/* Find words in any event */}
+        {/* Month Navigation & Title (Right in RTL) */}
+        <div className="flex items-center gap-2">
+          {/* Next month button in RTL (points right) */}
           <button
-            onClick={() => setShowSearch(true)}
-            className="w-9 h-9 flex items-center justify-center rounded-full text-neutral-900 hover:bg-neutral-100 active:bg-neutral-200/80 transition active:scale-95 cursor-pointer"
-            title="بحث عن كلمة في المناسبات والأحداث"
-            aria-label="بحث عن كلمة في المناسبات والأحداث"
+            onClick={onNextMonth}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#B68B4C] hover:bg-[#F1EEE7] active:scale-95 transition"
+            title="الشهر القادم"
+            aria-label="الشهر القادم"
           >
-            <Search size={22} className="stroke-[2.2] text-neutral-900" />
+            <ChevronRight size={20} className="stroke-[2.2]" />
           </button>
 
-          {/* Today Date Badge Icon: Outlined rounded square with today's date */}
+          {/* Large elegant Arabic month title */}
+          <div className="flex flex-col items-start text-right">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#183B3A] leading-tight whitespace-nowrap">
+              {formattedHeader}
+            </h1>
+            {gregorianMonthYear && (
+              <span className="text-[11px] sm:text-xs font-medium text-[#8C8C8C] tracking-tight mt-0.5 whitespace-nowrap">
+                {gregorianMonthYear}
+              </span>
+            )}
+          </div>
+
+          {/* Prev month button in RTL (points left) */}
+          <button
+            onClick={onPrevMonth}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#B68B4C] hover:bg-[#F1EEE7] active:scale-95 transition"
+            title="الشهر السابق"
+            aria-label="الشهر السابق"
+          >
+            <ChevronLeft size={20} className="stroke-[2.2]" />
+          </button>
+        </div>
+
+        {/* Action Buttons: Search & Today Badge (Left in RTL) */}
+        <div className="flex items-center gap-2">
+          {/* Search Button */}
+          <button
+            onClick={() => setShowSearch(true)}
+            className="w-8 h-8 flex items-center justify-center rounded-full text-[#183B3A] hover:bg-[#F1EEE7] active:scale-95 transition"
+            title="بحث في المناسبات والأحداث"
+            aria-label="بحث في المناسبات والأحداث"
+          >
+            <Search size={18} className="stroke-[2]" />
+          </button>
+
+          {/* Today Button Badge */}
           <button
             onClick={onResetToToday}
-            className={`w-8 h-8 rounded-[8px] border-2 flex items-center justify-center font-black text-xs sm:text-sm font-mono transition-all active:scale-95 cursor-pointer ${
+            className={`h-8 px-2.5 rounded-full border flex items-center justify-center font-bold text-xs transition-all active:scale-95 ${
               isToday
-                ? 'border-[#841c1c] text-[#841c1c] bg-red-50/60 shadow-2xs'
-                : 'border-neutral-900 text-neutral-900 hover:bg-neutral-100'
+                ? 'bg-[#183B3A] text-white border-[#183B3A] shadow-xs'
+                : 'bg-white border-[#E5E0D5] text-[#183B3A] hover:bg-[#F1EEE7]'
             }`}
-            title="الانتقال السريع إلى تاريخ اليوم"
-            aria-label="الانتقال السريع إلى تاريخ اليوم"
+            title="الانتقال إلى اليوم"
+            aria-label="الانتقال إلى اليوم"
           >
             <span>{num(todayDay)}</span>
           </button>
@@ -174,16 +192,16 @@ export const CalendarHeader = ({
 
       {/* Event Words Search Modal */}
       {showSearch && (
-        <div className="fixed inset-0 bg-neutral-900/60 backdrop-blur-xs flex items-start sm:items-center justify-center p-3 sm:p-4 z-50 animate-in fade-in duration-150">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md text-right border border-neutral-150 overflow-hidden flex flex-col max-h-[85vh] mt-8 sm:mt-0">
+        <div className="fixed inset-0 bg-[#183B3A]/40 backdrop-blur-xs flex items-start sm:items-center justify-center p-3 sm:p-4 z-50 animate-in fade-in duration-150">
+          <div className="bg-[#F8F6F1] rounded-3xl shadow-2xl w-full max-w-md text-right border border-[#E8E4DA] overflow-hidden flex flex-col max-h-[85vh] mt-8 sm:mt-0">
             {/* Search Input Bar */}
-            <div className="p-3 border-b border-neutral-200/80 bg-neutral-50/70 flex items-center gap-2">
+            <div className="p-3 border-b border-[#E8E4DA] bg-[#F1EEE7]/80 flex items-center gap-2">
               <button
                 onClick={() => {
                   setShowSearch(false);
                   setSearchQuery('');
                 }}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-neutral-500 hover:bg-neutral-200/70 transition shrink-0 cursor-pointer"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-[#8C8C8C] hover:bg-neutral-200/70 transition shrink-0"
                 title="إغلاق"
               >
                 <X size={18} />
@@ -196,13 +214,13 @@ export const CalendarHeader = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="ابحث عن كلمة في أي مناسبة أو ملاحظة..."
-                  className="w-full bg-white border border-neutral-200 rounded-xl py-2 pr-9 pl-3 text-xs sm:text-sm font-medium text-neutral-900 shadow-2xs focus:ring-2 focus:ring-[#841c1c] focus:outline-none transition placeholder:text-neutral-400 text-right"
+                  className="w-full bg-white border border-[#E8E4DA] rounded-xl py-2 pr-9 pl-3 text-xs sm:text-sm font-medium text-[#252525] shadow-2xs focus:ring-2 focus:ring-[#183B3A] focus:outline-none transition placeholder:text-[#8C8C8C] text-right"
                 />
-                <Search size={16} className="absolute right-2.5 top-2.5 sm:top-3 text-neutral-400" />
+                <Search size={16} className="absolute right-2.5 top-2.5 sm:top-3 text-[#8C8C8C]" />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="absolute left-2.5 top-2.5 text-neutral-400 hover:text-neutral-700 cursor-pointer"
+                    className="absolute left-2.5 top-2.5 text-[#8C8C8C] hover:text-[#252525]"
                   >
                     <X size={14} />
                   </button>

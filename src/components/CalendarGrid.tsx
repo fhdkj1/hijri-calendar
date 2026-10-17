@@ -7,7 +7,7 @@ import { EventIconRenderer } from './EventIcons';
 
 interface CalendarGridProps {
   days: HijriDateInfo[];
-  startWeekday: number; // 0 = Sat, 1 = Sun, ..., 6 = Fri
+  startWeekday: number; // 0 = Sun, 1 = Mon, ..., 6 = Sat
   selectedDay: number;
   onSelectDay: (day: number) => void;
   useArabicDigits: boolean;
@@ -26,48 +26,23 @@ export const CalendarGrid = ({
   showIslamicEvents = true,
   todayDay,
 }: CalendarGridProps) => {
-  // Find weekday index of selected day
-  const selectedDayObj = days.find((d) => d.day === selectedDay);
-  const activeWeekdayIndex = selectedDayObj ? selectedDayObj.weekdayIndex : -1;
-
   // Build grid cells: blank leading cells + month days
   const leadingBlanks = Array.from({ length: startWeekday });
-
-  // Map first occurrence of Gregorian months
-  const firstDayOfGMonthMap = new Map<number, { isFirstDayOfMonth: boolean; monthAbbr: string }>();
-
-  if (days.length > 0) {
-    firstDayOfGMonthMap.set(days[0].day, {
-      isFirstDayOfMonth: false,
-      monthAbbr: days[0].gregorianMonthNameEn,
-    });
-  }
-
-  days.forEach((dayInfo) => {
-    if (dayInfo.gregorianDay === 1) {
-      firstDayOfGMonthMap.set(dayInfo.day, {
-        isFirstDayOfMonth: true,
-        monthAbbr: dayInfo.gregorianMonthNameEn,
-      });
-    }
-  });
 
   const num = (val: number | string) =>
     useArabicDigits ? toArabicNumerals(val) : String(val);
 
   return (
-    <div className="w-full bg-white select-none border-b border-neutral-200/80 shadow-2xs">
-      {/* Weekday Row (RTL: السبت to الجمعة) */}
-      <div className="grid grid-cols-7 border-b border-neutral-200/70 text-center text-xs">
-        {ARABIC_WEEKDAYS.map((name, idx) => {
-          const isSelectedCol = idx === activeWeekdayIndex;
+    <div className="w-full bg-[#F8F6F1] select-none px-2 sm:px-3 pt-1 pb-3">
+      {/* Weekday Row (RTL: الأحد to السبت, الجمعة highlighted in subtle gold #B68B4C) */}
+      <div className="grid grid-cols-7 text-center mb-1">
+        {ARABIC_WEEKDAYS.map((name) => {
+          const isFriday = name === 'الجمعة';
           return (
             <div
               key={name}
-              className={`py-2 text-[11px] sm:text-xs font-semibold border-l border-neutral-200/50 first:border-r-0 last:border-l-0 transition-colors ${
-                isSelectedCol
-                  ? 'bg-[#d8cebf] text-neutral-900 font-bold'
-                  : 'bg-neutral-50/80 text-neutral-500'
+              className={`py-1.5 text-[11px] sm:text-xs font-medium tracking-tight ${
+                isFriday ? 'text-[#B68B4C] font-semibold' : 'text-[#8C8C8C]'
               }`}
             >
               {name}
@@ -76,13 +51,13 @@ export const CalendarGrid = ({
         })}
       </div>
 
-      {/* Days Grid: 7 columns, RTL order */}
-      <div className="grid grid-cols-7 border-l border-neutral-200/60 bg-neutral-100/40">
+      {/* Days Grid: 7 columns, breathable spacious cells without heavy borders */}
+      <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
         {/* Leading blank cells */}
         {leadingBlanks.map((_, idx) => (
           <div
             key={`blank-${idx}`}
-            className="min-h-[48px] sm:min-h-[52px] border-b border-r border-neutral-200/60 bg-neutral-50/50"
+            className="min-h-[56px] sm:min-h-[62px] rounded-2xl opacity-0"
           />
         ))}
 
@@ -90,15 +65,15 @@ export const CalendarGrid = ({
         {days.map((dayInfo) => {
           const isSelected = dayInfo.day === selectedDay;
           const isToday = todayDay !== null && todayDay !== undefined && dayInfo.day === todayDay;
-          const gInfo = firstDayOfGMonthMap.get(dayInfo.day);
           const noteInfo = notesDayMap[dayInfo.day];
           const isFriday = dayInfo.weekdayIndex === 5;
+          const hasEvent = showIslamicEvents && dayInfo.events && dayInfo.events.length > 0;
 
           // Determine the first event on this date
           let firstEventIcon: string | null = null;
           let firstEventTitle: string | null = null;
 
-          if (showIslamicEvents && dayInfo.events && dayInfo.events.length > 0) {
+          if (hasEvent) {
             firstEventIcon = dayInfo.events[0].icon || 'sparkles';
             firstEventTitle = dayInfo.events[0].titleAr;
           } else if (noteInfo) {
@@ -110,101 +85,52 @@ export const CalendarGrid = ({
             <div
               key={dayInfo.day}
               onClick={() => onSelectDay(dayInfo.day)}
-              className={`relative min-h-[48px] sm:min-h-[52px] p-1 sm:p-1.5 border-b border-r border-neutral-200/60 flex flex-col justify-between cursor-pointer transition-all duration-150 ${
+              className={`relative min-h-[56px] sm:min-h-[62px] p-1 sm:p-1.5 rounded-2xl flex flex-col items-center justify-between cursor-pointer transition-all duration-200 active:scale-95 ${
                 isSelected
-                  ? 'bg-[#dce868]/30 shadow-[inset_0_0_0_2px_#841c1c] rounded-xl z-10 shadow-xs'
+                  ? 'bg-[#F1EEE7] border border-[#183B3A]/20 shadow-2xs'
                   : isToday
-                  ? 'bg-amber-50/50 hover:bg-amber-50/80'
-                  : isFriday
-                  ? 'bg-amber-50/20 hover:bg-neutral-50 active:scale-95'
-                  : 'bg-white hover:bg-neutral-50 active:scale-95'
+                  ? 'bg-[#F1EEE7]/60 hover:bg-[#F1EEE7]'
+                  : 'bg-transparent hover:bg-[#F1EEE7]/50'
               }`}
             >
-              {/* Top Row: Hijri Day Number + First Event Icon */}
-              <div className="flex items-start justify-between relative z-10">
-                {/* Hijri day number:
-                    - Today ALWAYS has the permanent crimson filled badge
-                    - Clicked/selected day has highlighted style without stealing today's badge */}
-                {isToday ? (
+              {/* Top/Center: Hijri Day Number in Circular Badge if Selected/Today */}
+              <div className="flex flex-col items-center justify-center mt-0.5">
+                {isSelected || isToday ? (
                   <span
-                    className="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-[#841c1c] text-white flex items-center justify-center font-bold text-sm sm:text-base shadow-xs leading-none shrink-0 ring-2 ring-[#841c1c]/20"
-                    style={{
-                      fontFamily:
-                        '"Cairo", "Traditional Arabic", -apple-system, sans-serif',
-                    }}
-                    title="تاريخ اليوم"
-                  >
-                    {num(dayInfo.day)}
-                  </span>
-                ) : isSelected ? (
-                  <span
-                    className="w-7 h-7 sm:w-7.5 sm:h-7.5 flex items-center justify-center text-base sm:text-lg font-black leading-none text-[#841c1c] shrink-0"
-                    style={{
-                      fontFamily:
-                        '"Cairo", "Traditional Arabic", -apple-system, sans-serif',
-                    }}
+                    className="w-8 h-8 rounded-full bg-[#183B3A] text-white flex items-center justify-center font-bold text-sm sm:text-base shadow-xs leading-none"
+                    title={isToday ? 'اليوم' : 'اليوم المحدد'}
                   >
                     {num(dayInfo.day)}
                   </span>
                 ) : (
                   <span
-                    className={`w-7 h-7 sm:w-7.5 sm:h-7.5 flex items-center justify-center text-base sm:text-lg font-bold leading-none shrink-0 ${
-                      isFriday ? 'text-[#841c1c]' : 'text-[#8c1d1f]'
+                    className={`w-8 h-8 flex items-center justify-center text-sm sm:text-base font-semibold leading-none ${
+                      isFriday ? 'text-[#B68B4C] font-bold' : 'text-[#252525]'
                     }`}
-                    style={{
-                      fontFamily:
-                        '"Cairo", "Traditional Arabic", -apple-system, sans-serif',
-                    }}
                   >
                     {num(dayInfo.day)}
                   </span>
-                )}
-
-                {/* First event icon for this date */}
-                {firstEventIcon && (
-                  <div
-                    className="flex items-center justify-center shrink-0 mt-0.5"
-                    title={firstEventTitle || ''}
-                  >
-                    <EventIconRenderer
-                      icon={firstEventIcon}
-                      size={15}
-                      className="drop-shadow-xs"
-                    />
-                  </div>
                 )}
               </div>
 
-              {/* Bottom Row: Gregorian Date / Month Badge */}
-              <div className="flex items-end justify-between mt-1 text-[11px] leading-none">
-                {gInfo ? (
-                  gInfo.isFirstDayOfMonth ? (
-                    // Oct 1 style blue badge matching screenshot
-                    <div className="bg-[#2563eb] text-white text-[9px] rounded-xs px-1 py-0.5 font-bold flex flex-col items-center shadow-xs -mb-0.5 -mr-0.5">
-                      <span className="text-[8px] leading-tight font-medium opacity-90">
-                        {gInfo.monthAbbr}
-                      </span>
-                      <span className="leading-tight font-bold">{dayInfo.gregorianDay}</span>
-                    </div>
-                  ) : (
-                    // Sep 25 style grey badge matching screenshot
-                    <div className="bg-neutral-500 text-white text-[9px] rounded-xs px-1 py-0.5 font-semibold flex flex-col items-center shadow-2xs -mb-0.5 -mr-0.5">
-                      <span className="text-[8px] leading-tight font-medium opacity-90">
-                        {gInfo.monthAbbr}
-                      </span>
-                      <span className="leading-tight">{dayInfo.gregorianDay}</span>
-                    </div>
-                  )
-                ) : (
-                  // Regular Gregorian day number
-                  <span
-                    className={`font-sans text-[11px] mr-auto font-medium ${
-                      isSelected ? 'text-neutral-900 font-bold' : 'text-neutral-400'
-                    }`}
-                  >
-                    {dayInfo.gregorianDay}
-                  </span>
-                )}
+              {/* Bottom: Smaller Gregorian Date + Tiny Event Indicator */}
+              <div className="w-full flex items-center justify-center gap-1 mt-0.5">
+                {/* Gregorian Day Number */}
+                <span className="font-sans text-[10px] sm:text-[11px] text-[#8C8C8C] font-medium leading-none">
+                  {dayInfo.gregorianDay}
+                </span>
+
+                {/* Small indicator: Flag or tiny sand-gold dot for occasions */}
+                {firstEventIcon === 'flag' ? (
+                  <div className="shrink-0 -mt-0.5" title={firstEventTitle || ''}>
+                    <EventIconRenderer icon="flag" size={12} />
+                  </div>
+                ) : hasEvent || noteInfo ? (
+                  <div
+                    className="w-1.5 h-1.5 rounded-full bg-[#B68B4C] shrink-0"
+                    title={firstEventTitle || ''}
+                  />
+                ) : null}
               </div>
             </div>
           );
@@ -215,8 +141,8 @@ export const CalendarGrid = ({
           length: (7 - ((leadingBlanks.length + days.length) % 7)) % 7,
         }).map((_, idx) => (
           <div
-            key={`trailing-${idx}`}
-            className="min-h-[48px] sm:min-h-[52px] border-b border-r border-neutral-200/60 bg-neutral-50/50"
+            key={`trailing-blank-${idx}`}
+            className="min-h-[56px] sm:min-h-[62px] rounded-2xl opacity-0"
           />
         ))}
       </div>
