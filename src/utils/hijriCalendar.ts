@@ -25,7 +25,7 @@ export interface IslamicEvent {
   id: string;
   titleAr: string;
   titleEn: string;
-  icon: 'kaaba' | 'balloon' | 'crescent' | 'star' | 'book' | 'custom';
+  icon: 'kaaba' | 'balloon' | 'crescent' | 'star' | 'book' | 'custom' | 'flag';
   description?: string;
   isHoliday?: boolean;
 }
@@ -116,9 +116,12 @@ export interface MasterIslamicEvent {
   dayLabelAr: string;
   titleAr: string;
   titleEn: string;
-  icon: 'kaaba' | 'balloon' | 'crescent' | 'star' | 'book' | 'custom';
+  icon: 'kaaba' | 'balloon' | 'crescent' | 'star' | 'book' | 'custom' | 'flag';
   descriptionAr: string;
   isHoliday?: boolean;
+  isGregorian?: boolean;
+  gregorianMonth?: number; // 1 to 12
+  gregorianDay?: number; // 1 to 31
 }
 
 /**
@@ -301,6 +304,36 @@ export const ALL_MASTER_ISLAMIC_EVENTS: MasterIslamicEvent[] = [
     icon: 'star',
     descriptionAr: 'يستحب صيام الأيام البيض ١٣ و١٤ و١٥ من كل شهر هجري',
   },
+  {
+    id: 'saudi-founding-day',
+    month: 0,
+    day: 22,
+    monthNameAr: 'فبراير (سنوياً)',
+    dayLabelAr: '٢٢ فبراير',
+    titleAr: 'يوم التأسيس السعودي',
+    titleEn: 'Saudi Founding Day',
+    icon: 'flag',
+    descriptionAr: 'ذكرى تأسيس الدولة السعودية الأولى على يد الإمام محمد بن سعود عام ١١٣٩هـ (٢٢ فبراير)',
+    isHoliday: true,
+    isGregorian: true,
+    gregorianMonth: 2,
+    gregorianDay: 22,
+  },
+  {
+    id: 'saudi-national-day',
+    month: 0,
+    day: 23,
+    monthNameAr: 'سبتمبر (سنوياً)',
+    dayLabelAr: '٢٣ سبتمبر',
+    titleAr: 'اليوم الوطني للمملكة العربية السعودية',
+    titleEn: 'Saudi National Day',
+    icon: 'flag',
+    descriptionAr: 'ذكرى توحيد المملكة العربية السعودية على يد المؤسس الملك عبد العزيز آل سعود رحمه الله في ٢٣ سبتمبر ١٩٣٢م',
+    isHoliday: true,
+    isGregorian: true,
+    gregorianMonth: 9,
+    gregorianDay: 23,
+  },
 ];
 
 /**
@@ -438,6 +471,36 @@ export function getHijriMonthCalendar(
     const gMonth = curDate.getMonth() + 1;
     const gDay = curDate.getDate();
 
+    const dayEvents = getIslamicEvents(h.month, h.day, excludedEventIds);
+
+    // Saudi National Day (اليوم الوطني للمملكة العربية السعودية) - 23 سبتمبر (September 23)
+    if (gMonth === 9 && gDay === 23) {
+      if (!excludedEventIds.includes('saudi-national-day')) {
+        dayEvents.push({
+          id: 'saudi-national-day',
+          titleAr: 'اليوم الوطني للمملكة العربية السعودية',
+          titleEn: 'Saudi National Day',
+          icon: 'flag',
+          isHoliday: true,
+          description: 'ذكرى توحيد المملكة العربية السعودية في ٢٣ سبتمبر ١٩٣٢م',
+        });
+      }
+    }
+
+    // Saudi Founding Day (يوم التأسيس السعودي) - 22 فبراير (February 22)
+    if (gMonth === 2 && gDay === 22) {
+      if (!excludedEventIds.includes('saudi-founding-day')) {
+        dayEvents.push({
+          id: 'saudi-founding-day',
+          titleAr: 'يوم التأسيس السعودي',
+          titleEn: 'Saudi Founding Day',
+          icon: 'flag',
+          isHoliday: true,
+          description: 'ذكرى تأسيس الدولة السعودية الأولى عام ١١٣٩هـ (٢٢ فبراير)',
+        });
+      }
+    }
+
     days.push({
       year: h.year,
       month: h.month,
@@ -452,7 +515,7 @@ export function getHijriMonthCalendar(
       gregorianDay: gDay,
       gregorianMonthNameEn: GREGORIAN_MONTHS_EN[gMonth - 1],
       gregorianMonthNameAr: GREGORIAN_MONTHS_AR[gMonth - 1],
-      events: getIslamicEvents(h.month, h.day, excludedEventIds),
+      events: dayEvents,
     });
 
     curDate = new Date(curDate.getTime() + 86400000);

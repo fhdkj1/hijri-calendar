@@ -13,8 +13,9 @@ import {
   ALL_MASTER_ISLAMIC_EVENTS,
   type MasterIslamicEvent,
   toArabicNumerals,
+  getHijriFromGregorian,
 } from '../utils/hijriCalendar';
-import { KaabaIcon, BalloonIcon } from './CalendarIcons';
+import { KaabaIcon, BalloonIcon, SaudiFlagIcon } from './CalendarIcons';
 
 interface EventsListViewProps {
   currentHijriYear: number;
@@ -102,7 +103,7 @@ export const EventsListView = ({
           التقويم الهجري الدائم
         </span>
         <h2 className="text-base font-bold text-neutral-900 flex items-center gap-1.5">
-          <span>المناسبات والأعياد الإسلامية</span>
+          <span>المناسبات الدينية والوطنية</span>
           <Sparkles size={16} className="text-amber-600" />
         </h2>
       </div>
@@ -251,9 +252,11 @@ export const EventsListView = ({
                     {item.icon === 'kaaba' && <KaabaIcon size={22} />}
                     {item.icon === 'balloon' && <BalloonIcon size={22} />}
                     {item.icon === 'crescent' && <span className="text-lg">🌙</span>}
+                    {item.icon === 'flag' && <SaudiFlagIcon size={22} />}
                     {item.icon !== 'kaaba' &&
                       item.icon !== 'balloon' &&
-                      item.icon !== 'crescent' && (
+                      item.icon !== 'crescent' &&
+                      item.icon !== 'flag' && (
                         <Sparkles size={16} className="text-amber-500" />
                       )}
                   </div>
@@ -287,8 +290,15 @@ export const EventsListView = ({
                 <button
                   type="button"
                   onClick={() => {
-                    const jumpMonth = item.month === 0 ? 1 : item.month;
-                    onSelectEventDate(currentHijriYear, jumpMonth, item.day);
+                    if (item.isGregorian && item.gregorianMonth && item.gregorianDay) {
+                      const approxGYear = Math.floor(621.57 + currentHijriYear * 0.97022);
+                      const gDate = new Date(approxGYear, item.gregorianMonth - 1, item.gregorianDay);
+                      const h = getHijriFromGregorian(gDate);
+                      onSelectEventDate(h.year, h.month, h.day);
+                    } else {
+                      const jumpMonth = item.month === 0 ? 1 : item.month;
+                      onSelectEventDate(currentHijriYear, jumpMonth, item.day);
+                    }
                   }}
                   className="flex items-center gap-1 text-[11px] font-bold text-[#841c1c] hover:text-[#6e1616] bg-amber-50/60 hover:bg-amber-100/70 px-2.5 py-1 rounded-xl border border-amber-200/60 transition cursor-pointer active:scale-95"
                   title="عرض هذا اليوم في التقويم الهجري"

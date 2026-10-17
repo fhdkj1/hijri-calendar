@@ -14,7 +14,6 @@ import {
   Pin,
   Clock,
   Sparkles,
-  Flag,
   CheckCircle2,
   Smile,
   Baby,
@@ -29,7 +28,7 @@ import {
   ShoppingCart,
   CreditCard,
 } from 'lucide-react';
-import { KaabaIcon, BalloonIcon } from './CalendarIcons';
+import { KaabaIcon, BalloonIcon, SaudiFlagIcon } from './CalendarIcons';
 
 export interface IconCategory {
   id: string;
@@ -80,7 +79,8 @@ export const EventIconRenderer: React.FC<EventIconRendererProps> = ({
     case 'star':
       return <Star size={size} className={`text-amber-500 fill-amber-400 ${className}`} />;
     case 'flag':
-      return <Flag size={size} className={`text-rose-500 fill-rose-100 ${className}`} />;
+    case 'saudi':
+      return <SaudiFlagIcon size={size} className={className} />;
     case 'check':
       return <CheckCircle2 size={size} className={`text-emerald-600 fill-emerald-50 ${className}`} />;
     case 'gift':

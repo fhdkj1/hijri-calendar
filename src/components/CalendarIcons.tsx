@@ -159,4 +159,31 @@ export const MoreTabIcon: React.FC<{ className?: string; active?: boolean }> = (
   </svg>
 );
 
-
+// Saudi Flag Icon for National Day (اليوم الوطني) and Founding Day (يوم التأسيس)
+export const SaudiFlagIcon: React.FC<{ className?: string; size?: number }> = ({
+  className = '',
+  size = 20,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`inline-block ${className}`}
+  >
+    {/* Flag Pole */}
+    <line x1="3.5" y1="2" x2="3.5" y2="22" stroke="#52525b" strokeWidth="1.8" strokeLinecap="round" />
+    <circle cx="3.5" cy="2.5" r="1.2" fill="#d4af37" />
+    {/* Green Flag Fabric */}
+    <rect x="4.5" y="3" width="16" height="11" rx="1.5" fill="#006C35" />
+    {/* Stylized Palm & Sword Symbol */}
+    <path
+      d="M12.5 5.5C12.5 5.5 11 6.8 9.5 6.8M12.5 5.5C12.5 5.5 14 6.8 15.5 6.8M12.5 5.5V10.5M9.5 11.5H15.5"
+      stroke="#ffffff"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
